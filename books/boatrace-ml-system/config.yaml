@@ -1,0 +1,39 @@
+title: "ボートレース予想AIを作って運用する ― データ収集から機械学習、GCP での配信まで"
+summary: |
+  boatrace-fun.net の開発で得た知見を一冊にまとめた実践書です。
+  公式サイトから収集した 1 レース 1 行の CSV を出発点に、偏差値化・ベイズ収縮・非負制約付き最小二乗による
+  「強さポイント」を作り、回収率と log-loss で評価し、Cloud Run Jobs と Pub/Sub で 2 分毎に更新される
+  静的サイトとして Astro で配信するまでを、実際のコードと実測値(2026 年 8 月時点)で解説します。
+  v1 から v10 まで 10 の予想者を投入して 8 つを退役させた A/B 実験の記録、ST 推定・スリット展開・穴予想での
+  「定説が測ると逆だった」発見、そして「できないことを証明して撤退する」設計書の書き方まで、
+  機械学習をシステムとして運用するための一連の物語として読めます。
+  Python と TypeScript / Astro の基礎知識を前提とします。
+topics: ["python", "機械学習", "typescript", "astro", "googlecloud"]
+published: false
+price: 0
+toc_depth: 2
+chapters:
+  - 00-introduction
+  - 01-boatrace-domain
+  - 02-data-collection
+  - 03-realtime-collection
+  - 04-hensachi-features
+  - 05-motor-ability-index
+  - 06-feature-context
+  - 07-strength-index
+  - 08-betting-picks
+  - 09-evaluation-metrics
+  - 10-predictor-registry
+  - 11-cloud-run-jobs
+  - 12-silent-failures
+  - 13-fun-site-batch
+  - 14-astro-pages
+  - 15-start-diagram
+  - 16-explainability
+  - 17-stats-dashboard
+  - 18-st-estimation
+  - 19-slit-simulation
+  - 20-kimarite-model
+  - 21-ana-prediction
+  - 22-conclusion
+  - 23-appendix
