@@ -1,0 +1,54 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8">
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #fff; font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif; }
+#fig { position: relative; width: 500px; height: 700px; background: #2B4C9B; color: #fff; overflow: hidden; }
+#fig .band { position: absolute; left: 0; right: 0; top: 0; height: 8px; background: #E5002D; }
+#fig .kicker { position: absolute; left: 36px; top: 40px; font-size: 13px; letter-spacing: 0.18em; color: #C7D2FE; font-weight: 600; }
+#fig .title { position: absolute; left: 36px; top: 66px; width: 428px; font-size: 44px; line-height: 1.22; font-weight: 700; letter-spacing: 0.01em; }
+#fig .sub { position: absolute; left: 36px; top: 200px; width: 428px; font-size: 15.5px; line-height: 1.6; color: #E0E7FF; font-weight: 500; }
+#fig .diagram { position: absolute; left: 36px; top: 300px; width: 428px; height: 250px; background: #fff; border-radius: 12px; }
+#fig .tags { position: absolute; left: 36px; bottom: 60px; display: flex; gap: 8px; flex-wrap: wrap; }
+#fig .tag { font-size: 12.5px; font-weight: 600; padding: 4px 10px; border: 1.5px solid #A5B4FC; border-radius: 999px; color: #E0E7FF; }
+#fig .foot { position: absolute; left: 36px; bottom: 30px; font-size: 12px; color: #A5B4FC; letter-spacing: 0.06em; }
+</style></head>
+<body><div id="fig">
+  <div class="band"></div>
+  <div class="kicker">PRACTICAL ML SYSTEMS</div>
+  <div class="title">機械学習システムの<br>設計と運用</div>
+  <div class="sub">ボートレース予想サイトの開発で学ぶ<br>データ収集・モデル・評価・配信</div>
+  <div class="diagram">
+    <svg width="428" height="250" viewBox="0 0 428 250" xmlns="http://www.w3.org/2000/svg" font-family="Hiragino Sans">
+      <!-- lanes -->
+      <g id="lanes"></g>
+      <!-- start line -->
+      <line x1="340" y1="16" x2="340" y2="222" stroke="#E5002D" stroke-width="3"/>
+      <text x="340" y="240" font-size="11" fill="#E5002D" text-anchor="middle" font-weight="600">スタートライン</text>
+      <text x="60" y="240" font-size="11" fill="#6B7280">ST(秒) 0.30</text>
+      <text x="205" y="240" font-size="11" fill="#6B7280" text-anchor="middle">0.15</text>
+    </svg>
+  </div>
+  <div class="tags"><span class="tag">Python</span><span class="tag">TypeScript / Astro</span><span class="tag">Google Cloud</span><span class="tag">評価・A/B 実験</span></div>
+  <div class="foot">boatrace-fun.net の開発記録から</div>
+</div>
+<script>
+// 6 艇のスタート予想図の模式: 舳先を ST 位置に置き、艇体の下に p25〜p75 の帯
+const colors = [["#FFFFFF","#111827"],["#000000","#000000"],["#E5002D","#E5002D"],["#0047AB","#0047AB"],["#FFD700","#FFD700"],["#008000","#008000"]];
+const st = [0.13, 0.16, 0.17, 0.14, 0.14, 0.17];               // 予測 ST
+const band = [[0.10,0.17],[0.13,0.20],[0.13,0.20],[0.10,0.17],[0.10,0.18],[0.13,0.20]];
+const x0 = 340, pxPerSec = 900; // ST 0 = スタートライン、左へ 900px/秒
+const g = document.getElementById("lanes");
+let s = "";
+for (let i = 0; i < 6; i++) {
+  const y = 32 + i * 34, bow = x0 - st[i] * pxPerSec, L = 0.135 * pxPerSec, h = 20;
+  const [fill, stroke] = colors[i];
+  s += `<line x1="24" y1="${y+17}" x2="404" y2="${y+17}" stroke="#E5E7EB" stroke-width="1"/>`;
+  s += `<path d="M${bow-L},${y-h/2} H${bow-14} L${bow},${y} L${bow-14},${y+h/2} H${bow-L} Z" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
+  const b0 = x0 - band[i][1] * pxPerSec, b1 = x0 - band[i][0] * pxPerSec;
+  s += `<rect x="${b0}" y="${y+h/2+3}" width="${b1-b0}" height="4" rx="2" fill="${fill === "#FFFFFF" ? "#9CA3AF" : fill}" opacity="0.7"/>`;
+  s += `<text x="${bow+10}" y="${y+5}" font-size="12" fill="#111827" font-weight="600">${st[i].toFixed(2)}</text>`;
+  s += `<rect x="24" y="${y-9}" width="18" height="18" rx="3" fill="${fill}" stroke="${stroke}" stroke-width="1.2"/>`;
+  s += `<text x="33" y="${y+4.5}" font-size="11" text-anchor="middle" font-weight="700" fill="${["#FFFFFF","#FFD700"].includes(fill) ? "#111827" : "#fff"}">${i+1}</text>`;
+}
+g.innerHTML = s;
+</script></body></html>
