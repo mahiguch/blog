@@ -81,7 +81,7 @@ fun-site のライセンスは MIT(2026-09-19 に Private から変更)。両リ
 
 - 全 24 章(第 0〜23 章)の本文を執筆・コミット済み。
 - 全章合計 約 84 万字(コード込み)。
-- 画像は未作成。各章の `![...](/images/boatrace-ml-system/...)` 直後の `<!-- 図: -->` コメントに描く内容を指示してある。一覧:
+- 画像 35 枚は作成済み(2026-09-19)。`images/boatrace-ml-system/` に PNG、生成ソースは `docs/books/boatrace-ml-system/images-src/`(matplotlib の .py、HTML/SVG + headless Chrome の .html と render.py / build.sh、サイトのスクリーンショットは screenshots.js)。一覧:
 
   - 第 00 章: /images/boatrace-ml-system/overview.png
   - 第 01 章: /images/boatrace-ml-system/01-kimarite.png
@@ -119,4 +119,4 @@ fun-site のライセンスは MIT(2026-09-19 に Private から変更)。両リ
   - 第 20 章: /images/boatrace-ml-system/kimarite-pipeline.png
   - 第 21 章: /images/boatrace-ml-system/ana-prediction-pipeline.png
 
-- 公開前チェック: `published: true` に変更、画像作成、zenn preview で全章表示確認。
+- 公開前チェック: `published: true` に変更、zenn preview で全章表示確認。
