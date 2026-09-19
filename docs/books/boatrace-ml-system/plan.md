@@ -76,3 +76,47 @@ fun-site のライセンスは MIT(2026-09-19 に Private から変更)。両リ
 6. 末尾の `## 執筆メモ` を削除する。
 7. 章ごとにコミットする。
 - 表示名: registry.py は v1_basic=A君予想、fun-site predictors.ts は 本命予想。最終整合パスで統一を検討(第 10 章は registry 名を採用)
+
+## 進捗(2026-09-19)
+
+- 第 0〜21 章、第 23 章の本文を執筆・コミット済み。第 22 章は執筆中。
+- 全章合計 約 84 万字(コード込み)。
+- 画像は未作成。各章の `![...](/images/boatrace-ml-system/...)` 直後の `<!-- 図: -->` コメントに描く内容を指示してある。一覧:
+
+  - 第 00 章: /images/boatrace-ml-system/overview.png
+  - 第 01 章: /images/boatrace-ml-system/01-kimarite.png
+  - 第 01 章: /images/boatrace-ml-system/01-problem-setting.png
+  - 第 01 章: /images/boatrace-ml-system/01-slit-formation.png
+  - 第 02 章: /images/boatrace-ml-system/02-scraper-layers.png
+  - 第 02 章: /images/boatrace-ml-system/02-three-stages.png
+  - 第 03 章: /images/boatrace-ml-system/03-realtime-cycle.png
+  - 第 04 章: /images/boatrace-ml-system/04-hensachi-pipeline.png
+  - 第 05 章: /images/boatrace-ml-system/motor-pt-pipeline.png
+  - 第 05 章: /images/boatrace-ml-system/motor-shrinkage-curve.png
+  - 第 06 章: /images/boatrace-ml-system/feature-context-io.png
+  - 第 07 章: /images/boatrace-ml-system/07-contribution-decomposition.png
+  - 第 07 章: /images/boatrace-ml-system/07-weights-by-stadium.png
+  - 第 08 章: /images/boatrace-ml-system/08-formation.png
+  - 第 09 章: /images/boatrace-ml-system/09-ci-halfwidth-vs-n.png
+  - 第 09 章: /images/boatrace-ml-system/09-metric-roles.png
+  - 第 10 章: /images/boatrace-ml-system/10-registry-consumers.png
+  - 第 11 章: /images/boatrace-ml-system/11-cloud-run-jobs.png
+  - 第 12 章: /images/boatrace-ml-system/silent-failures-cone-window.png
+  - 第 12 章: /images/boatrace-ml-system/silent-failures-timeline.png
+  - 第 13 章: /images/boatrace-ml-system/13-realtime-chain.png
+  - 第 14 章: /images/boatrace-ml-system/astro-pages-data-flow.png
+  - 第 15 章: /images/boatrace-ml-system/15-one-mark.png
+  - 第 15 章: /images/boatrace-ml-system/15-start-prediction.png
+  - 第 15 章: /images/boatrace-ml-system/15-start-result.png
+  - 第 16 章: /images/boatrace-ml-system/16-ai-evaluation-chart.png
+  - 第 16 章: /images/boatrace-ml-system/16-reproducibility-map.png
+  - 第 17 章: /images/boatrace-ml-system/17-stats-page.png
+  - 第 18 章: /images/boatrace-ml-system/racer-st-daily-update.png
+  - 第 18 章: /images/boatrace-ml-system/st-oracle-floor.png
+  - 第 19 章: /images/boatrace-ml-system/slit-sim-band-coverage.png
+  - 第 19 章: /images/boatrace-ml-system/slit-sim-retreat-lines.png
+  - 第 20 章: /images/boatrace-ml-system/kimarite-calibration.png
+  - 第 20 章: /images/boatrace-ml-system/kimarite-pipeline.png
+  - 第 21 章: /images/boatrace-ml-system/ana-prediction-pipeline.png
+
+- 公開前チェック: `published: true` に変更、画像作成、zenn preview で全章表示確認。
