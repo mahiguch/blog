@@ -1,0 +1,63 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>
+Fig.render(document.getElementById("fig"), {
+  w: 1200, h: 760,
+  groups: [
+    { id: "L", x: 20, y: 30, w: 560, h: 620, label: "boatracecsv(Python)", cls: "solid" },
+    { id: "R", x: 640, y: 30, w: 540, h: 620, label: "fun-site(TypeScript / Astro)", cls: "solid" },
+    { id: "JOBS", x: 40, y: 240, w: 520, h: 270, label: "Cloud Run Jobs(1 Docker イメージ・3 ジョブ)", cls: "gray tint", labelIn: true },
+    { id: "BATCH", x: 660, y: 160, w: 500, h: 250, label: "Cloud Run Job: fun-site-batch", cls: "gray tint", labelIn: true },
+  ],
+  boxes: [
+    { id: "sched", x: 40, y: 70, w: 290, h: 120, title: "Cloud Scheduler(3 本)", sub: "preview-realtime: 2 分毎<br/>daily-sync: 毎日 07:30<br/>monthly-weights: 毎月 1 日 06:00" },
+    { id: "site", x: 355, y: 70, w: 205, h: 70, cls: "gray", title: "公式サイト", sub: "出走表・直前情報・結果" },
+    { id: "mw", x: 55, y: 290, w: 160, h: 120, title: "monthly-weights", sub: "学習(月次)<br/>場別重み<br/>静的テーブル" },
+    { id: "ds", x: 225, y: 290, w: 160, h: 120, title: "daily-sync", sub: "日次推論<br/>当日全レースの<br/>daily 行" },
+    { id: "pr", x: 395, y: 290, w: 160, h: 120, title: "preview-realtime", sub: "直前推論<br/>締切前の<br/>realtime 行" },
+    { id: "wcsv", x: 55, y: 440, w: 160, h: 44, cls: "gray", title: "weights CSV", sub: "" },
+    { id: "git", x: 40, y: 548, w: 250, h: 95, title: "git push", sub: "GitHub Pages で CSV 配信" },
+    { id: "gcs", x: 300, y: 548, w: 260, h: 95, title: "GCS ミラー +<br/>Pub/Sub publish", sub: "当日 CSV をミラー、1 実行 1 通知" },
+    { id: "ps", x: 660, y: 60, w: 150, h: 70, title: "Pub/Sub", sub: "topic" },
+    { id: "ea", x: 840, y: 60, w: 140, h: 70, title: "Eventarc", sub: "trigger" },
+    { id: "wf", x: 1010, y: 60, w: 150, h: 70, title: "Workflows", sub: "dispatcher" },
+    { id: "s1", x: 675, y: 200, w: 150, h: 60, cls: "white", title: "event-parser" },
+    { id: "s2", x: 845, y: 200, w: 150, h: 60, cls: "white", title: "build-state" },
+    { id: "s3", x: 1015, y: 200, w: 130, h: 60, cls: "white", title: "fetcher" },
+    { id: "s4", x: 1015, y: 320, w: 130, h: 60, cls: "white", title: "prediction-<br/>builder", style: { fontSize: "18px" } },
+    { id: "s5", x: 845, y: 320, w: 150, h: 60, cls: "white", title: "Astro build" },
+    { id: "s6", x: 675, y: 320, w: 150, h: 60, cls: "white", title: "GCS deploy" },
+    { id: "web", x: 660, y: 450, w: 150, h: 70, title: "GCS", sub: "静的ファイル" },
+    { id: "cdn", x: 840, y: 450, w: 140, h: 70, title: "Cloud CDN" },
+    { id: "lb", x: 1010, y: 450, w: 150, h: 70, title: "HTTPS LB" },
+    { id: "user", x: 1010, y: 565, w: 150, h: 60, cls: "gray pill", title: "利用者" },
+  ],
+  arrows: [
+    { from: ["sched", "b"], to: ["JOBS", "t", 0.27], label: "起動" },
+    { from: ["site", "b"], to: ["JOBS", "t", 0.8], label: "収集" },
+    { from: ["mw", "b"], to: ["wcsv", "t"] },
+    { from: ["wcsv", "r"], to: ["ds", "b"], route: "h" },
+    { from: ["wcsv", "r"], to: ["pr", "b"], route: "h", label: "build_index の入力(左側の内部に留まる)", t: 0.42, dy: 22 },
+    { from: ["JOBS", "b", 0.24], to: ["git", "t"], label: "3 ジョブとも commit + push" },
+    { from: ["JOBS", "b", 0.76], to: ["gcs", "t"], label: "daily / realtime のみ" },
+    { from: ["gcs", "r"], to: ["ps", "l"], route: "hvh", mid: 595, color: "red", width: 3, label: "CSV + 通知", t: 0.97, dx: -75, dy: -20, labelCls: "red" },
+    { from: ["ps", "r"], to: ["ea", "l"] },
+    { from: ["ea", "r"], to: ["wf", "l"] },
+    { from: ["wf", "b"], to: ["s3", "t"], label: "Job 実行", t: 0.22 },
+    { from: ["s3", "l"], to: ["s2", "r"], startHead: true, noHead: true },
+    { from: ["s2", "l"], to: ["s1", "r"], startHead: true, noHead: true },
+    { from: ["s3", "b"], to: ["s4", "t"] },
+    { from: ["s4", "l"], to: ["s5", "r"] },
+    { from: ["s5", "l"], to: ["s6", "r"] },
+    { from: ["s6", "b"], to: ["web", "t"] },
+    { from: ["web", "r"], to: ["cdn", "l"] },
+    { from: ["cdn", "r"], to: ["lb", "l"] },
+    { from: ["lb", "b"], to: ["user", "t"] },
+  ],
+  lines: [ { x1: 610, y1: 20, x2: 610, y2: 745, color: "navy", width: 6 } ],
+  notes: [
+    { x: 420, y: 668, w: 380, cls: "red center", html: "CSV だけが境界を越える。<br/>fun-site 側に学習・推論はない", style: { background: "#fff", padding: "6px 10px", fontSize: "20px" } },
+  ],
+});
+</script></body></html>

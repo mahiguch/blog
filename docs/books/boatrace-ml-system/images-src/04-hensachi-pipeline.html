@@ -1,0 +1,87 @@
+<!doctype html>
+<!-- size: 890x700 -->
+<html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css"></head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="890" height="700" viewBox="0 0 890 700">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2B4C9B"/></marker>
+    <marker id="arrr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E5002D"/></marker>
+  </defs>
+  <g id="main"></g>
+</svg>
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const g = document.getElementById('main');
+  const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; };
+  const cols = [
+    {key: 'waku',    name: '枠番', raw: '7.43',  unit: '得点(1 着 10 〜 6 着 1)'},
+    {key: 'racer',   name: '選手', raw: '48',    unit: '近況 10 節の得点平均'},
+    {key: 'exhibit', name: '展示', raw: '45.48', unit: 'レース内偏差値の平均'},
+    {key: 'weather', name: '気象', raw: '−0.065', unit: '有利pt 変動'},
+  ];
+  const colX = i => 150 + i * 150;   // 列の中心
+  const W = 132;
+  const rows = {pre: 96, raw: 190, z: 290, pt: 390, w: 490, sum: 610};
+  const box = (cx, cy, h, cls, lines, extra) => {
+    g.appendChild(el('rect', {x: cx - W / 2, y: cy - h / 2, width: W, height: h, rx: 6, class: cls}));
+    lines.forEach((t, i) => g.appendChild(el('text', Object.assign({x: cx, y: cy - (lines.length - 1) * 9 + i * 18 + 5, 'text-anchor': 'middle', class: i === 0 ? 'h' : 'small muted'}, extra || {}), t)));
+  };
+  const vArrow = (cx, y1, y2) => g.appendChild(el('line', {x1: cx, y1, x2: cx, y2, class: 'line', 'marker-end': 'url(#arr)'}));
+
+  // 行ラベル(左端)
+  const rowLabel = (y, t1, t2) => { g.appendChild(el('text', {x: 8, y: y - 4, class: 'small h navy'}, t1)); if (t2) g.appendChild(el('text', {x: 8, y: y + 14, class: 'small muted'}, t2)); };
+
+  cols.forEach((c, i) => {
+    const cx = colX(i);
+    g.appendChild(el('text', {x: cx, y: 40, 'text-anchor': 'middle', class: 'title'}, c.name));
+    if (c.key === 'exhibit') {
+      box(cx, rows.pre, 44, 'box-gray', ['レース内偏差値化', '同じレースの 6 艇で'], null);
+      vArrow(cx, rows.pre + 22, rows.raw - 24);
+    }
+    box(cx, rows.raw, 48, 'box-white', [c.raw, c.unit]);
+    vArrow(cx, rows.raw + 24, rows.z - 24);
+    box(cx, rows.z, 48, 'box', ['z = (素点 − μ) / σ', 'μ, σ はこの場の値']);
+    vArrow(cx, rows.z + 24, rows.pt - 24);
+    box(cx, rows.pt, 48, 'box', ['pt = 50 + 10 z', '平均 50・SD 10']);
+    vArrow(cx, rows.pt + 24, rows.w - 24);
+    box(cx, rows.w, 48, 'box', ['寄与 = w × pt', 'w はこの場の重み']);
+    // 合流線
+    g.appendChild(el('path', {d: `M ${cx} ${rows.w + 24} L ${cx} ${rows.sum - 60} L 375 ${rows.sum - 60}`, class: 'line'}));
+  });
+  g.appendChild(el('text', {x: 8, y: rows.raw - 30, class: 'small muted'}, '素点の単位はばらばら ↓'));
+  rowLabel(rows.raw, '素点');
+  rowLabel(rows.z, 'z');
+  rowLabel(rows.pt, '偏差値pt');
+  rowLabel(rows.w, '寄与');
+
+  // モーター(第 5 章): 同じ 4 段を経て合流
+  g.appendChild(el('rect', {x: 560, y: rows.sum - 24, width: 150, height: 48, rx: 6, fill: '#fff', stroke: '#6B7280', 'stroke-width': 1.5, 'stroke-dasharray': '6 4'}));
+  g.appendChild(el('text', {x: 635, y: rows.sum - 2, 'text-anchor': 'middle', class: 'h muted'}, '+ モーターの寄与'));
+  g.appendChild(el('text', {x: 635, y: rows.sum + 16, 'text-anchor': 'middle', class: 'small muted'}, '第 5 章(同じ 4 段)'));
+  g.appendChild(el('path', {d: `M 560 ${rows.sum} L 526 ${rows.sum}`, class: 'line-gray dash', 'marker-end': 'url(#arr)'}));
+
+  // 強さpt
+  vArrow(375, rows.sum - 60, rows.sum - 26);
+  g.appendChild(el('rect', {x: 225, y: rows.sum - 24, width: 300, height: 48, rx: 8, fill: '#2B4C9B'}));
+  g.appendChild(el('text', {x: 375, y: rows.sum - 2, 'text-anchor': 'middle', class: 'title', fill: '#fff'}, '強さpt = Σ 寄与'));
+  g.appendChild(el('text', {x: 375, y: rows.sum + 16, 'text-anchor': 'middle', class: 'small', fill: '#fff'}, 'w ≥ 0, Σw = 1 なので平均 50・SD 10 前後'));
+
+  // weights CSV(右端)
+  const wx = 704, wy = rows.z - 60;
+  g.appendChild(el('rect', {x: wx, y: wy, width: 176, height: 170, rx: 6, fill: '#fff', stroke: '#E5002D', 'stroke-width': 1.5}));
+  g.appendChild(el('text', {x: wx + 88, y: wy + 22, 'text-anchor': 'middle', class: 'h red'}, 'weights CSV'));
+  g.appendChild(el('text', {x: wx + 88, y: wy + 40, 'text-anchor': 'middle', class: 'small muted'}, '場ごとに 1 行(月次学習)'));
+  ['mu_*   (μ: 素点の平均)', 'sigma_* (σ: 素点の SD)', 'w_*    (重み、第 7 章)', '* = waku / racer /', '    exhibit / weather'].forEach((t, i) => {
+    g.appendChild(el('text', {x: wx + 10, y: wy + 66 + i * 22, class: 'mono', style: 'font-size:12px'}, t));
+  });
+  // μσ → z 行、w → 寄与 行
+  g.appendChild(el('path', {d: `M ${wx} ${rows.z} L ${colX(3) + W / 2 + 4} ${rows.z}`, class: 'line-red', 'marker-end': 'url(#arrr)'}));
+  g.appendChild(el('text', {x: (wx + colX(3) + W / 2) / 2, y: rows.z - 8, 'text-anchor': 'middle', class: 'small red'}, 'μ, σ'));
+  g.appendChild(el('path', {d: `M ${wx + 88} ${wy + 170} L ${wx + 88} ${rows.w - 40} L ${colX(3) + W / 2 + 12} ${rows.w - 40} L ${colX(3) + W / 2 + 12} ${rows.w} L ${colX(3) + W / 2 + 4} ${rows.w}`, class: 'line-red', 'marker-end': 'url(#arrr)'}));
+  g.appendChild(el('text', {x: wx + 96, y: rows.w - 46, class: 'small red'}, 'w'));
+
+  // 欄外
+  g.appendChild(el('text', {x: 8, y: 672, class: 'small navy'}, '第 16 章の検算ページ /lanes/ /racers/ /exhibition/ /weather/ は、この 4 段(素点 → z → 偏差値pt → 寄与)をそのまま実値で画面に出す'));
+  g.appendChild(el('text', {x: 8, y: 692, class: 'small muted'}, '素点の値は本文の例。μ, σ, w は場ごとに違う(例: 桐生の μ_waku = 5.047, σ_waku = 1.365)'));
+</script>
+</body></html>

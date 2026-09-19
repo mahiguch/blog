@@ -1,0 +1,28 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>Fig.render(document.getElementById("fig"), {
+  w: 1200, h: 470,
+  boxes: [
+    { id: "st0", x: 40, y: 140, w: 230, h: 120, cls: "gray", title: "state.csv", sub: "基準日 = D−2<br/>登録番号 / Σw·ST<br/>Σw·ST² / Σw" },
+    { id: "in1", x: 360, y: 15, w: 360, h: 80, cls: "gray", html: '<div class="t" style="font-size:18px">D−1 の results/realtime + race_cards</div>', sub: "艇番 → 登録番号の紐付け" },
+    { id: "adv", x: 340, y: 140, w: 400, h: 120, title: "advance_state()", sub: "decay_to(D−1): 全選手の Σ を 0.5^(1/30) 倍 / 日<br/>add_run(ST, w = 1.0): 前日の実測 ST を足す" },
+    { id: "st1", x: 810, y: 140, w: 230, h: 120, cls: "gray", title: "state.csv", sub: "基準日 = D−1<br/>save_state() で書き戻す" },
+    { id: "est", x: 810, y: 350, w: 230, h: 100, title: "D の推定 ST CSV", sub: "racer_st/YYYY/MM/DD.csv<br/>1 レース 1 行、6 枠ぶん" },
+    { id: "rc", x: 1070, y: 365, w: 110, h: 70, cls: "gray", html: '<div class="t" style="font-size:17px">D の<br/>race_cards</div>' },
+    { id: "err", x: 340, y: 345, w: 400, h: 110, cls: "red", title: "ValueError", sub: "基準日 &gt; 対象日 − 1 なら拒否<br/>過去日の再生成は未来情報のリーク<br/>(--rebuild だけ許可)" },
+  ],
+  arrows: [
+    { from: ["st0", "r"], to: ["adv", "l"], label: "load_state()", dy: -16 },
+    { from: ["in1", "b"], to: ["adv", "t"], label: "日順に取り込む", dx: 90 },
+    { from: ["adv", "r"], to: ["st1", "l"], label: "基準日を<br/>D−1 に", dy: -22 },
+    { from: ["st1", "b"], to: ["est", "t"], label: "build_day_estimates()", dx: 0 },
+    { from: ["rc", "l"], to: ["est", "r"] },
+    { from: ["adv", "b"], to: ["err", "t"], dashed: true, color: "red", label: "state.base_day &gt; new_base", labelCls: "red" },
+  ],
+  notes: [
+    { x: 40, y: 350, w: 260, html: "同じ対象日で再実行しても取り込む新規日が無く、<br/>状態も出力も変わらない(冪等)", style: { fontSize: "15px", color: "#4B5563" } },
+    { x: 40, y: 30, w: 280, cls: "navy", html: "daily-sync(JST 07:30)の<br/>build-racer-st ステップ、対象日 D" },
+  ],
+});
+</script></body></html>

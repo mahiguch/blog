@@ -1,0 +1,78 @@
+<!doctype html>
+<!-- size: 800x500 -->
+<html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css"></head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111827"/></marker>
+    <marker id="arrn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2B4C9B"/></marker>
+  </defs>
+  <g id="main"></g>
+</svg>
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const g = document.getElementById('main');
+  const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; };
+  const X0 = 40, X1 = 770, M0 = -14, M1 = 14;       // 分(締切 D 基準)
+  const tx = m => X0 + (m - M0) / (M1 - M0) * (X1 - X0);
+  const axisY = 260;
+
+  g.appendChild(el('text', {x: 24, y: 28, class: 'title'}, 'あるレース(締切 D)を、2 分毎のサイクル ● がどう扱うか'));
+  g.appendChild(el('text', {x: 24, y: 50, class: 'small muted'}, 'Cloud Scheduler */2 8-22(JST)が preview-realtime.py を 1 回実行 = 1 サイクル'));
+  g.appendChild(el('text', {x: 24, y: 68, class: 'small muted'}, '1 サイクル: 開催一覧 → preview → odds → index 更新 → result → payout → 1 コミット'));
+
+  // preview 窓の帯: 締切が [now+1, now+10] に入る ⇔ now が D−10 〜 D−1
+  g.appendChild(el('rect', {x: tx(-10), y: axisY - 120, width: tx(-1) - tx(-10), height: 40, rx: 6, fill: '#EEF2FF', stroke: '#2B4C9B', 'stroke-width': 1.5}));
+  g.appendChild(el('text', {x: (tx(-10) + tx(-1)) / 2, y: axisY - 103, 'text-anchor': 'middle', class: 'small h navy'}, 'preview 窓: 締切が [now+1, now+10] に入る'));
+  g.appendChild(el('text', {x: (tx(-10) + tx(-1)) / 2, y: axisY - 87, 'text-anchor': 'middle', class: 'small navy'}, '= D の 10 分前 〜 1 分前'));
+  // 結果パスの帯: D+3 以降、終日
+  g.appendChild(el('rect', {x: tx(3), y: axisY - 120, width: tx(14) - tx(3), height: 40, rx: 6, fill: '#FEF2F2', stroke: '#E5002D', 'stroke-width': 1.5}));
+  g.appendChild(el('text', {x: (tx(3) + tx(14)) / 2, y: axisY - 103, 'text-anchor': 'middle', class: 'small h red'}, '結果パス: 締切 +3 分以降'));
+  g.appendChild(el('text', {x: (tx(3) + tx(14)) / 2, y: axisY - 87, 'text-anchor': 'middle', class: 'small red'}, '未記録なら終日再試行(上限なし)→'));
+  // 窓の外
+  g.appendChild(el('text', {x: (tx(-1) + tx(3)) / 2, y: axisY - 95, 'text-anchor': 'middle', class: 'small muted'}, '対象外'));
+
+  // 時間軸
+  g.appendChild(el('line', {x1: X0 - 10, y1: axisY, x2: X1 + 8, y2: axisY, stroke: '#111827', 'stroke-width': 2, 'marker-end': 'url(#arr)'}));
+  for (let m = -14; m <= 14; m += 2) {
+    g.appendChild(el('line', {x1: tx(m), y1: axisY - 4, x2: tx(m), y2: axisY + 4, stroke: '#9CA3AF', 'stroke-width': 1}));
+  }
+  [-10, -5, 0, 3, 10].forEach(m => {
+    g.appendChild(el('line', {x1: tx(m), y1: axisY - 6, x2: tx(m), y2: axisY + 6, stroke: '#111827', 'stroke-width': 1.5}));
+    g.appendChild(el('text', {x: tx(m), y: axisY + 24, 'text-anchor': 'middle', class: 'small'}, m === 0 ? 'D' : (m > 0 ? `D+${m}` : `D−${-m}`)));
+  });
+  g.appendChild(el('text', {x: X1 + 4, y: axisY + 24, 'text-anchor': 'end', class: 'small muted'}, '分'));
+  // 締切線
+  g.appendChild(el('line', {x1: tx(0), y1: axisY - 130, x2: tx(0), y2: axisY + 40, stroke: '#E5002D', 'stroke-width': 2, 'stroke-dasharray': '6 4'}));
+  g.appendChild(el('rect', {x: tx(0) - 34, y: axisY - 150, width: 68, height: 22, rx: 11, fill: '#E5002D'}));
+  g.appendChild(el('text', {x: tx(0), y: axisY - 134, 'text-anchor': 'middle', class: 'small h', fill: '#fff'}, '締切 D'));
+
+  // サイクル ●(奇数分に置く: D−13, −11, …, +13)
+  const cycles = [];
+  for (let m = -13; m <= 13; m += 2) cycles.push(m);
+  cycles.forEach(m => {
+    const inWin = (m + 1 <= 0 && 0 <= m + 10);   // 締切 D が [now+1, now+10] に入るか
+    const res = m >= 3;
+    const fill = inWin ? '#2B4C9B' : (res ? '#E5002D' : '#9CA3AF');
+    g.appendChild(el('circle', {cx: tx(m), cy: axisY - 40, r: 9, fill, stroke: '#fff', 'stroke-width': 2}));
+  });
+  g.appendChild(el('text', {x: X0 - 10, y: axisY - 56, class: 'small muted'}, '● = 2 分毎のサイクル(now)'));
+
+  // 下段: 各サイクルの動き(引き出し線 + 説明)
+  const leaders = el('g', {}); const texts = el('g', {style: 'paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round'});
+  g.appendChild(leaders); g.appendChild(texts);
+  const note = (m, y, lines, color) => {
+    leaders.appendChild(el('line', {x1: tx(m), y1: axisY - 31, x2: tx(m), y2: y - 16, stroke: color, 'stroke-width': 1.2, 'stroke-dasharray': '3 3'}));
+    lines.forEach((t, i) => texts.appendChild(el('text', {x: tx(m), y: y + i * 17, 'text-anchor': 'middle', class: i === 0 ? 'small h' : 'small', fill: i === 0 ? color : '#374151'}, t)));
+  };
+  note(-9, axisY + 62, ['最初に窓へ入った ●', 'tkz / stt / sui / oex を取得', 'ソースごとの CSV に追記'], '#2B4C9B');
+  note(-7, axisY + 128, ['次の ●', 'status=0(計測中)だった', 'ソースだけ再試行'], '#2B4C9B');
+  note(-1, axisY + 62, ['窓の最後の ●', '未取得が残れば', '締切 1 分前まで再試行'], '#2B4C9B');
+  note(1, axisY + 128, ['対象外', '窓の外で、結果はまだ', '(D+3 未満は必ず 403)'], '#6B7280');
+  note(5, axisY + 62, ['D+3 以降の ●', 'bc_rs1_2 → results/realtime', 'bc_rs2 → results/payouts'], '#E5002D');
+  note(11, axisY + 128, ['片方だけ取れたら', '取れなかった方だけ', '次の ● で再試行(独立 append)'], '#E5002D');
+
+  // 補足
+  g.appendChild(el('text', {x: 24, y: 480, class: 'small muted'}, '実測(2026 年 8 月): stt は締切の中央値 9.3 分前に取得、結果は中央値 17.4 分後(30 分超が 3.9%)'));
+</script>
+</body></html>

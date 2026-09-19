@@ -1,0 +1,86 @@
+<!doctype html>
+<!-- size: 800x560 -->
+<html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css"></head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111827"/></marker>
+  </defs>
+  <g id="main"></g>
+</svg>
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const g = document.getElementById('main');
+  const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; };
+  // 時刻軸: 06:00 → 24:00
+  const X0 = 150, X1 = 770, H0 = 6, H1 = 24;
+  const tx = h => X0 + (h - H0) / (H1 - H0) * (X1 - X0);
+  const axisY = 300;
+  // 行(帯)
+  const rows = [
+    {y: 80,  label: '事前情報', sub: 'programs/*'},
+    {y: 150, label: '直前情報', sub: 'previews/*'},
+    {y: 220, label: '結果',     sub: 'results/*'},
+  ];
+  const D = 15.5; // 例のレースの締切(15:30)
+  // 帯の背景
+  rows.forEach(r => {
+    g.appendChild(el('rect', {x: 20, y: r.y - 24, width: 750, height: 48, rx: 6, fill: '#F9FAFB'}));
+    g.appendChild(el('text', {x: 30, y: r.y + 1, class: 'h'}, r.label));
+    g.appendChild(el('text', {x: 30, y: r.y + 18, class: 'small mono muted'}, r.sub));
+  });
+  // 事前情報: 07:30 に daily-sync が一度に取る
+  g.appendChild(el('rect', {x: tx(7.5), y: rows[0].y - 14, width: tx(8) - tx(7.5), height: 28, rx: 4, fill: '#2B4C9B'}));
+  g.appendChild(el('text', {x: tx(8.1), y: rows[0].y - 2, class: 'small'}, '07:30 daily-sync 起動: 当日の全レース分を一度に取得'));
+  g.appendChild(el('text', {x: tx(8.1), y: rows[0].y + 16, class: 'small muted'}, '出走表詳細・近況・モーター成績・月間日程'));
+  // 直前情報: 08:00〜22:59 の 2 分毎ジョブ、各レースは締切 −5 分
+  g.appendChild(el('rect', {x: tx(8), y: rows[1].y - 14, width: tx(23) - tx(8), height: 28, rx: 4, fill: '#EEF2FF', stroke: '#2B4C9B', 'stroke-width': 1.5}));
+  g.appendChild(el('text', {x: tx(8) + 8, y: rows[1].y - 1, class: 'small navy'}, '08:00〜22:59 preview-realtime(2 分毎)'));
+  g.appendChild(el('text', {x: tx(8) + 8, y: rows[1].y + 16, class: 'small muted'}, '各レースの締切 −5 分に取得'));
+  // 結果: 同じジョブが締切 +3 分以降、終日キャッチアップ
+  g.appendChild(el('rect', {x: tx(8), y: rows[2].y - 14, width: tx(23) - tx(8), height: 28, rx: 4, fill: '#EEF2FF', stroke: '#2B4C9B', 'stroke-width': 1.5}));
+  g.appendChild(el('text', {x: tx(8) + 8, y: rows[2].y - 1, class: 'small navy'}, '同じジョブが締切 +3 分以降に取得'));
+  g.appendChild(el('text', {x: tx(8) + 8, y: rows[2].y + 16, class: 'small muted'}, '未取得なら終日キャッチアップ'));
+  // 例のレース: 締切 D の縦線が 3 帯を貫く(共通キー = レースコード)
+  const dx = tx(D);
+  g.appendChild(el('line', {x1: dx, y1: 50, x2: dx, y2: axisY + 8, stroke: '#E5002D', 'stroke-width': 2, 'stroke-dasharray': '6 4'}));
+  g.appendChild(el('text', {x: dx, y: 44, 'text-anchor': 'middle', class: 'small h red'}, 'あるレースの締切 D(15:30)'));
+  // 各帯上の取得点
+  const dot = (x, y, fill) => g.appendChild(el('circle', {cx: x, cy: y, r: 7, fill, stroke: '#fff', 'stroke-width': 2}));
+  dot(tx(7.75), rows[0].y, '#2B4C9B');
+  dot(dx - 4, rows[1].y, '#E5002D');
+  dot(dx + 4, rows[2].y, '#E5002D');
+  // 時刻軸
+  g.appendChild(el('line', {x1: X0 - 10, y1: axisY, x2: X1 + 6, y2: axisY, stroke: '#111827', 'stroke-width': 2, 'marker-end': 'url(#arr)'}));
+  for (let h = 6; h <= 24; h += 2) {
+    g.appendChild(el('line', {x1: tx(h), y1: axisY - 5, x2: tx(h), y2: axisY + 5, stroke: '#111827', 'stroke-width': 1.5}));
+    g.appendChild(el('text', {x: tx(h), y: axisY + 22, 'text-anchor': 'middle', class: 'small'}, `${String(h).padStart(2, '0')}:00`));
+  }
+  g.appendChild(el('text', {x: 30, y: axisY + 5, class: 'small muted'}, '時刻(JST)'));
+  // 左端: 共通キー
+  g.appendChild(el('rect', {x: 20, y: rows[0].y - 40, width: 750, height: 0}));
+  // 拡大図: 締切 D の前後
+  const zy = 380, zx0 = 150, zx1 = 770;
+  const zt = m => zx0 + (m + 12) / 24 * (zx1 - zx0); // 分(D 基準 −12..+12)
+  g.appendChild(el('path', {d: `M ${dx - 4} ${axisY + 36} L ${zx0} ${zy - 28} M ${dx + 4} ${axisY + 36} L ${zx1} ${zy - 28}`, stroke: '#9CA3AF', 'stroke-width': 1, 'stroke-dasharray': '4 3'}));
+  g.appendChild(el('rect', {x: 20, y: zy - 30, width: 750, height: 150, rx: 8, fill: '#fff', stroke: '#9CA3AF', 'stroke-width': 1.5}));
+  g.appendChild(el('text', {x: 30, y: zy - 8, class: 'h'}, '締切 D の前後(拡大)'));
+  g.appendChild(el('line', {x1: zx0, y1: zy + 60, x2: zx1, y2: zy + 60, stroke: '#111827', 'stroke-width': 2, 'marker-end': 'url(#arr)'}));
+  [-10, -5, 0, 3, 10].forEach(m => {
+    g.appendChild(el('line', {x1: zt(m), y1: zy + 55, x2: zt(m), y2: zy + 65, stroke: '#111827', 'stroke-width': 1.5}));
+    g.appendChild(el('text', {x: zt(m), y: zy + 84, 'text-anchor': 'middle', class: 'small'}, m === 0 ? 'D(締切)' : (m > 0 ? `D+${m} 分` : `D−${-m} 分`)));
+  });
+  g.appendChild(el('line', {x1: zt(0), y1: zy + 2, x2: zt(0), y2: zy + 70, stroke: '#E5002D', 'stroke-width': 2, 'stroke-dasharray': '6 4'}));
+    // 直前情報の点(D−5)と結果の点(D+3〜)
+  dot(zt(-5), zy + 30, '#E5002D');
+  g.appendChild(el('text', {x: zt(-5), y: zy + 16, 'text-anchor': 'middle', class: 'small h'}, '直前情報'));
+  g.appendChild(el('text', {x: zt(-5), y: zy + 48, 'text-anchor': 'middle', class: 'small muted'}, 'tkz / stt / sui / od*'));
+  g.appendChild(el('rect', {x: zt(3), y: zy + 22, width: zt(12) - zt(3), height: 16, rx: 3, fill: '#EEF2FF', stroke: '#2B4C9B'}));
+  dot(zt(3), zy + 30, '#E5002D');
+  g.appendChild(el('text', {x: zt(3) + 14, y: zy + 16, class: 'small h'}, '結果(D+3 分以降、取れるまで再試行)'));
+  g.appendChild(el('text', {x: zt(3) + 14, y: zy + 48, class: 'small muted'}, 'results/realtime, results/payouts'));
+  // 共通キーの注記
+  g.appendChild(el('rect', {x: 24, y: 250, width: 740, height: 18, fill: '#fff'}));
+  g.appendChild(el('text', {x: 30, y: 262, class: 'small navy'}, '3 つの帯は同じ 12 桁のレースコード(YYYYMMDD + 場 + R、例 202608011001)を共通キーに JOIN する。縦の破線がそのレース'));
+</script>
+</body></html>

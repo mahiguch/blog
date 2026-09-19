@@ -1,0 +1,20 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>const li = (items) => '<ul style="margin:8px 0 0;padding-left:22px;font-size:17px;line-height:1.45;text-align:left">' + items.map(i => `<li>${i}</li>`).join("") + "</ul>";
+Fig.render(document.getElementById("fig"), {
+  w: 1100, h: 420,
+  boxes: [
+    { id: "a", x: 20, y: 40, w: 340, h: 215, cls: "left", style: { justifyContent: "flex-start", borderWidth: "3px" },
+      html: '<div><span class="tag">主判定</span></div><div class="t" style="margin-top:6px">3 連単 log-loss</div>' + li(["確率の質を上げているか", "数週間で決着", "logloss.csv の CI 下限 &lt; 0 なら退役"]) },
+    { id: "b", x: 380, y: 40, w: 340, h: 215, cls: "left red", style: { justifyContent: "flex-start", borderWidth: "3px" },
+      html: '<div><span class="tag red">ガードレール</span></div><div class="t" style="margin-top:6px">回収率</div>' + li(["破滅的な劣化の検知だけ", "control 比 −7pt 級の劣化で退役", "A案 vs B案 の微差は判定に使わない"]) },
+    { id: "c", x: 740, y: 40, w: 340, h: 215, cls: "left gray", style: { justifyContent: "flex-start", borderWidth: "3px" },
+      html: '<div><span class="tag gray">体験指標</span></div><div class="t" style="margin-top:6px">万舟/1 万円・平均配当・点数</div>' + li(["穴予想として成立しているか", "目標値を置く", "有意差判定はしない<br/>(検出力が足りない)"]) },
+    { id: "d", x: 20, y: 320, w: 1060, h: 70, cls: "gray", title: "母数 = 直前(realtime)買い目が組めた確定レース(§6)", sub: "3 つの指標とも、control と同一レースで突き合わせる" },
+  ],
+  arrows: [
+    { from: ["a", "b"], to: ["d", "t", 0.18] }, { from: ["b", "b"], to: ["d", "t", 0.5] }, { from: ["c", "b"], to: ["d", "t", 0.82] },
+  ],
+});
+</script></body></html>

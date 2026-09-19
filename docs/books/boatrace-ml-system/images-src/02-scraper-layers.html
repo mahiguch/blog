@@ -1,0 +1,31 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>Fig.render(document.getElementById("fig"), {
+  w: 1140, h: 600,
+  boxes: [
+    { id: "url", x: 20, y: 145, w: 100, h: 60, cls: "gray pill", title: "URL" },
+    { id: "dl", x: 150, y: 120, w: 210, h: 110, title: "downloader", sub: "downloader.py<br/>レートリミット・リトライ" },
+    { id: "ex", x: 530, y: 120, w: 210, h: 110, title: "extractor", sub: "extractor.py<br/>LZH 展開・SJIS デコード" },
+    { id: "pa", x: 910, y: 120, w: 210, h: 110, title: "parser", sub: "parser.py / *_scraper.py<br/>dataclass に変換" },
+    { id: "cv", x: 150, y: 370, w: 210, h: 110, title: "converter", sub: "converter.py<br/>レースコードを組み立て" },
+    { id: "st", x: 530, y: 370, w: 210, h: 110, title: "storage", sub: "storage.py, preview_csv.py<br/>上書き / 追記 / 重複排除" },
+    { id: "go", x: 910, y: 370, w: 210, h: 110, title: "git_operations", sub: "git_operations.py<br/>add / commit / rebase / push" },
+    { id: "out", x: 720, y: 525, w: 400, h: 55, cls: "gray pill", title: '<span style="font-size:17px">commit / push → GitHub Pages で公開</span>' },
+  ],
+  arrows: [
+    { from: ["url", "r"], to: ["dl", "l"] },
+    { from: ["dl", "r"], to: ["ex", "l"], label: "bytes<br/>(mbrace: LZH)" },
+    { from: ["ex", "r"], to: ["pa", "l"], label: "text<br/>{ファイル名: 本文}" },
+    { from: ["dl", "t"], to: ["pa", "t"], route: "vhv", mid: 50, dashed: true, color: "gray",
+      label: "boatcast 経路: text(TSV)を extractor を通さず parser(*_scraper.py)へ", t: 0.5 },
+    { from: ["pa", "b"], to: ["cv", "t"], route: "vhv", mid: 300, label: "dataclass のリスト(RaceCard 等)", t: 0.5 },
+    { from: ["cv", "r"], to: ["st", "l"], label: "CSV 文字列<br/>(+ レースコード)" },
+    { from: ["st", "r"], to: ["go", "l"], label: "ファイル<br/>YYYY/MM/DD.csv" },
+    { from: ["go", "b"], to: ["out", "t", 0.79] },
+  ],
+  notes: [
+    { x: 20, y: 530, w: 620, html: "scripts/boatrace/ の 6 層。各層は例外を投げず、ログを残して None を返し、<br/>失敗件数を stats に数える", style: { fontSize: "15px", color: "#6B7280" } },
+  ],
+});
+</script></body></html>

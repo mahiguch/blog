@@ -1,0 +1,84 @@
+<!doctype html>
+<!-- size: 800x600 -->
+<html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css"></head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111827"/></marker>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#000"/></marker>
+    <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E5002D"/></marker>
+    <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0047AB"/></marker>
+  </defs>
+  <text x="24" y="30" class="title">1 マーク(上から見た図)。艇は左から右へ進み、ブイを左回りに回る</text>
+
+  <!-- 水面 -->
+  <rect x="24" y="48" width="752" height="400" rx="8" fill="#F3F4F6"/>
+  <text x="640" y="72" class="small muted">進行方向 →</text>
+
+  <!-- 4 コース まくり(青): 外から速度で前に出て、1 コースの前に被せる -->
+  <path d="M 150 420 L 640 420 C 760 420 770 120 590 120 L 330 120" fill="none" stroke="#0047AB" stroke-width="5" marker-end="url(#a4)"/>
+  <!-- 1 コース 逃げ(白・枠線黒): ブイを内側で回り、出口でやや膨らむ -->
+  <path id="nige" d="M 150 255 L 560 255 A 50 50 0 0 0 610 205 A 50 50 0 0 0 560 155 C 535 155 525 140 500 140 L 400 140" fill="none" stroke="#111827" stroke-width="9"/>
+  <path d="M 150 255 L 560 255 A 50 50 0 0 0 610 205 A 50 50 0 0 0 560 155 C 535 155 525 140 500 140 L 400 140" fill="none" stroke="#fff" stroke-width="5"/>
+  <path d="M 396 140 L 416 130 L 416 150 Z" fill="#fff" stroke="#111827" stroke-width="2"/>
+  <!-- 3 コース まくり差し(赤): 外を回りつつ、膨らんだ 1 コースの内へ切り込む -->
+  <path d="M 150 365 L 620 365 C 710 365 720 235 685 200 C 668 183 650 160 620 160 L 460 160" fill="none" stroke="#E5002D" stroke-width="5" marker-end="url(#a3)"/>
+  <!-- 2 コース 差し(黒): 1 コースの内側(ブイ寄り)に入る -->
+  <path d="M 150 310 L 600 310 C 650 310 655 245 640 222 C 630 205 615 180 590 180 L 520 180" fill="none" stroke="#000" stroke-width="5" marker-end="url(#a2)"/>
+
+  <!-- ブイ -->
+  <circle cx="560" cy="205" r="12" fill="#F59E0B" stroke="#111827" stroke-width="2"/>
+  <text x="560" y="238" text-anchor="middle" class="small h">1 マーク</text>
+
+  <!-- 艇(左端): 舳先が右向き -->
+  <g id="boats"></g>
+
+  <!-- 軌道ラベル(矢印の先) -->
+  <text x="322" y="125" text-anchor="end" class="h" fill="#0047AB">まくり</text>
+  <text x="388" y="145" text-anchor="end" class="h">逃げ</text>
+  <text x="450" y="165" text-anchor="end" class="h red">まくり差し</text>
+  <text x="510" y="185" text-anchor="end" class="h">差し</text>
+
+  <!-- 凡例 -->
+  <text x="24" y="482" class="h">凡例(艇色 = 艇番、枠なりで艇番 = コース)</text>
+  <g transform="translate(24,500)">
+    <rect x="0" y="0" width="30" height="16" fill="#fff" stroke="#111827" stroke-width="2"/>
+    <text x="40" y="13">1 コース  逃げ: そのまま先行して逃げ切る</text>
+    <rect x="0" y="26" width="30" height="16" fill="#000"/>
+    <text x="40" y="39">2 コース  差し: 1 コースの内側(ブイ寄り)に入る</text>
+    <rect x="390" y="0" width="30" height="16" fill="#E5002D"/>
+    <text x="430" y="13">3 コース  まくり差し: 外を回りつつ内に切り込む</text>
+    <rect x="390" y="26" width="30" height="16" fill="#0047AB"/>
+    <text x="430" y="39">4 コース  まくり: 外から前に出て被せる</text>
+  </g>
+  <text x="24" y="574" class="small muted">※ 5・6 コースは省略。コース番号は内側(ブイ側)から数える</text>
+</svg>
+<script>
+  const g = document.getElementById('boats');
+  const boats = [
+    {n:1, y:255, fill:'#fff', text:'#000'},
+    {n:2, y:310, fill:'#000', text:'#fff'},
+    {n:3, y:365, fill:'#E5002D', text:'#fff'},
+    {n:4, y:420, fill:'#0047AB', text:'#fff'},
+  ];
+  for (const b of boats) {
+    const x = 60, w = 80, h = 26;
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', `M ${x} ${b.y-h/2} L ${x+w-24} ${b.y-h/2} L ${x+w} ${b.y} L ${x+w-24} ${b.y+h/2} L ${x} ${b.y+h/2} Z`);
+    p.setAttribute('fill', b.fill); p.setAttribute('stroke','#111827'); p.setAttribute('stroke-width','2');
+    g.appendChild(p);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x+26); t.setAttribute('y', b.y+5); t.setAttribute('text-anchor','middle');
+    t.setAttribute('fill', b.text); t.setAttribute('class','h'); t.textContent = b.n;
+    g.appendChild(t);
+    const l = document.createElementNS('http://www.w3.org/2000/svg','text');
+    l.setAttribute('x', x+w-14); l.setAttribute('y', b.y+5); l.setAttribute('class','small');
+    l.setAttribute('fill', '#374151'); l.textContent = '';
+    g.appendChild(l);
+    const c = document.createElementNS('http://www.w3.org/2000/svg','text');
+    c.setAttribute('x', 30); c.setAttribute('y', b.y-18); c.setAttribute('class','small muted');
+    c.textContent = `${b.n} コース`;
+    g.appendChild(c);
+  }
+</script>
+</body></html>

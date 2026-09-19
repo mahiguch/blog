@@ -1,0 +1,41 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>const days = ["day1", "day2", "day3", "…", "day180", "day181"];
+const files = ["2026/05/03.csv", "2026/05/04.csv", "2026/05/05.csv", "…", "2026/07/29.csv", "2026/07/30.csv", "2026/07/31.csv", "…"];
+const boxes = [], lines = [], arrows = [];
+// 左: 素朴版
+days.forEach((d, i) => boxes.push({ id: "L" + i, x: 50, y: 90 + i * 62, w: 110, h: 44, cls: d === "…" ? "white dashed" : "", title: d }));
+const fileBox = (id, x, i, f) => ({ id, x, y: 80 + i * 52, w: 150, h: 38, cls: f === "…" ? "white dashed" : "gray", html: `<div style="font-size:15px">${f}</div>` });
+files.forEach((f, i) => boxes.push(fileBox("F" + i, 400, i, f)));
+days.forEach((d, i) => files.forEach((f, j) => {
+  if (d === "…" || f === "…") return;
+  lines.push({ x1: 160, y1: 112 + i * 62, x2: 400, y2: 99 + j * 52, color: "navy", width: 1.5, opacity: 0.45 });
+}));
+// 右: FeatureContext
+files.forEach((f, i) => boxes.push(fileBox("G" + i, 640, i, f)));
+boxes.push({ id: "ctx", x: 940, y: 80, w: 220, h: 230, cls: "white", title: "FeatureContext", html:
+  '<div class="box" style="position:static;width:190px;height:70px;margin:8px 0 6px"><div class="t" style="font-size:18px">session_index</div><div class="s">場 → 開催日リスト</div></div>' +
+  '<div class="box" style="position:static;width:190px;height:70px"><div class="t" style="font-size:18px">race_cards_cache</div><div class="s">日付 → DataFrame</div></div>' });
+arrows.push({ from: [790, 195], to: ["ctx", "l", 0.5], color: "navy", width: 3, label: "1 回だけ走査<br/>181 日 + 90 日の遡り<br/>= 約 270 ファイル", t: 0.5, dy: -48 });
+days.forEach((d, i) => {
+  const x = 640 + i * 88;
+  boxes.push({ id: "R" + i, x, y: 500, w: 82, h: 44, cls: d === "…" ? "white dashed" : "", html: `<div style="font-size:17px;font-weight:600">${d}</div>` });
+  if (d === "…") return;
+  const tx = Math.min(Math.max(x + 41, 960), 1140);
+  arrows.push({ from: [x + 41, 500], to: [tx, 310], color: "navy", width: 1.5, opacity: 0.8 });
+});
+Fig.render(document.getElementById("fig"), {
+  w: 1200, h: 640, boxes, lines, arrows,
+  groups: [
+    { x: 20, y: 20, w: 560, h: 600, label: "素朴版: 対象日ごとに race_cards を開き直す", cls: "gray" },
+    { x: 620, y: 20, w: 560, h: 600, label: "FeatureContext: 1 回走査してから参照する", cls: "solid" },
+  ],
+  notes: [
+    { x: 50, y: 510, w: 480, html: "対象日 181 日 × 24 場 × 90 日の存在チェック(_has_races_at)", style: { fontSize: "16px" } },
+    { x: 50, y: 545, w: 480, cls: "red", html: "race_cards の open 約 410,000 回", style: { fontSize: "22px" } },
+    { x: 640, y: 555, w: 540, html: "day1〜day181 は session_index と race_cards_cache だけを参照", style: { fontSize: "16px" } },
+    { x: 640, y: 583, w: 480, cls: "red", html: "race_cards の open 約 270 回", style: { fontSize: "22px" } },
+  ],
+});
+</script></body></html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<!-- size: 900x520 -->
+<html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css"></head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111827"/></marker>
+  </defs>
+  <g id="main"></g>
+</svg>
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const g = document.getElementById('main');
+  const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; };
+  const C = {deploy: '#2B4C9B', fail: '#E5002D', fix: '#0F9D58'};
+  // 日付 → x(8/10 〜 9/2)
+  const d0 = Date.UTC(2026, 7, 10), d1 = Date.UTC(2026, 8, 2);
+  const X0 = 60, X1 = 860;
+  const tx = (m, d, h = 12, mi = 0) => X0 + (Date.UTC(2026, m - 1, d, h, mi) - d0) / (d1 - d0) * (X1 - X0);
+  const axisY = 250;
+
+  g.appendChild(el('text', {x: 20, y: 30, class: 'title'}, '2026-08-11 〜 09-01: 穴予想の投入から 3 つの沈黙する失敗の修正まで'));
+  // 凡例
+  const leg = [['投入・退役', C.deploy], ['失敗の発生(潜伏している期間)', C.fail], ['気づき・修正', C.fix]];
+  leg.forEach((l, i) => {
+    const x = 20 + i * 250;
+    g.appendChild(el('circle', {cx: x + 8, cy: 54, r: 7, fill: l[1]}));
+    g.appendChild(el('text', {x: x + 22, y: 59, class: 'small'}, l[0]));
+  });
+
+  // 軸
+  g.appendChild(el('line', {x1: X0 - 20, y1: axisY, x2: X1 + 20, y2: axisY, stroke: '#111827', 'stroke-width': 2, 'marker-end': 'url(#arr)'}));
+  for (let d = 10; d <= 31; d++) {
+    const x = tx(8, d, 0);
+    g.appendChild(el('line', {x1: x, y1: axisY - 4, x2: x, y2: axisY + 4, stroke: '#9CA3AF'}));
+  }
+  [[8, 11], [8, 13], [8, 15], [8, 17], [8, 19], [8, 22], [8, 25], [8, 28], [9, 1]].forEach(([m, d]) => {
+    const x = tx(m, d, 0);
+    g.appendChild(el('line', {x1: x, y1: axisY - 6, x2: x, y2: axisY + 6, stroke: '#111827', 'stroke-width': 1.5}));
+    g.appendChild(el('text', {x, y: axisY + 24, 'text-anchor': 'middle', class: 'small'}, `${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`));
+  });
+  g.appendChild(el('line', {x1: tx(9, 1, 0), y1: axisY - 4, x2: tx(9, 1, 0), y2: axisY + 4, stroke: '#111827', 'stroke-width': 1.5}));
+
+  // 潜伏している失敗の帯(軸の上)
+  const band = (xa, xb, y, label) => {
+    g.appendChild(el('rect', {x: xa, y: y - 10, width: xb - xa, height: 20, rx: 4, fill: '#FEE2E2', stroke: C.fail, 'stroke-width': 1.5, 'stroke-dasharray': '5 3'}));
+    g.appendChild(el('text', {x: xa + 8, y: y + 5, class: 'small red', style: 'paint-order: stroke; stroke: #FEE2E2; stroke-width: 4px'}, label));
+  };
+  band(tx(8, 11, 0), tx(8, 22, 18, 22), axisY - 120, '型 A(§1.2): monthly-weights の tables/ 出力が git add に無く、月次実行で捨てられる状態(まだ実行前)');
+  band(tx(8, 12, 22, 21), tx(8, 22, 18, 54), axisY - 92, '§2: build_kimarite の学習母数が cone の広さで決まっていた(全履歴のつもりが 8 か月)');
+  band(tx(8, 12, 22, 21), tx(8, 13, 20, 25), axisY - 64, '');
+  g.appendChild(el('text', {x: tx(8, 13, 20, 25) + 8, y: axisY - 59, class: 'small red'}, '型 B(§1.3): preview-realtime の git add が丸ごと失敗(08-13 の直前情報が終日 commit されず)'));
+
+  // イベント(軸上の●と、軸の下の引き出しラベル)
+  const ev = (m, d, h, mi, color, lines, ly, anchor) => {
+    lines = lines.filter(t => t);
+    const x = tx(m, d, h, mi);
+    g.appendChild(el('circle', {cx: x, cy: axisY, r: 8, fill: color, stroke: '#fff', 'stroke-width': 2}));
+    g.appendChild(el('line', {x1: x, y1: axisY + 8, x2: x, y2: ly - 14, stroke: color, 'stroke-width': 1.2, 'stroke-dasharray': '3 3'}));
+    lines.forEach((t, i) => g.appendChild(el('text', {x: x + (anchor === 'end' ? 6 : (anchor === 'start' ? -6 : 0)), y: ly + i * 17, 'text-anchor': anchor || 'middle', class: i === 0 ? 'small h' : 'small', fill: i === 0 ? color : '#374151', style: 'paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round'}, t)));
+  };
+  // ラベル行: 近い ● ほど上の行に置き、引き出し線が他のラベルを横切らないようにする
+  const R1 = axisY + 50, R2 = axisY + 120, R3 = axisY + 190;
+  ev(8, 11, 12, 0, C.deploy, ['08-11 投入', 'v9_suji(スジ表)。テーブル生成も', 'monthly-weights に追加'], R3, 'start');
+  ev(8, 12, 22, 21, C.deploy, ['08-12 投入', '荒れ度メーター・v10_kimarite', 'tokuten_hayami(22:21)'], R2, 'start');
+  ev(8, 13, 20, 25, C.fix, ['08-13 20:25 修正', 'sparse_paths に tokuten_hayami を追加'], R1, 'start');
+  ev(8, 22, 12, 0, C.deploy, ['08-22 v9_suji 退役'], R3, 'start');
+  ev(8, 22, 18, 22, C.fix, ['08-22 18:22 修正 #8', '静的テーブルの永続化', '(paths と git add に tables/ を追加)'], R2, 'start');
+  ev(8, 22, 18, 54, C.fix, ['08-22 18:54 修正 #9', '全履歴で学習', '(cone に race_cards / previews の全期間)'], R1, 'start');
+  ev(9, 1, 6, 6, C.fix, ['09-01 06:06 初の月次実行', 'monthly-weights が初めて tables/ を', 'commit(logloss.csv 初出)'], R3, 'end');
+
+  // 08-13 の失敗発生(赤い●)
+  g.appendChild(el('circle', {cx: tx(8, 13, 8, 0), cy: axisY, r: 8, fill: C.fail, stroke: '#fff', 'stroke-width': 2}));
+  g.appendChild(el('text', {x: tx(8, 13, 8, 0), y: axisY - 32, 'text-anchor': 'middle', class: 'small red'}, '08-13 直前情報が止まる'));
+  g.appendChild(el('line', {x1: tx(8, 13, 8, 0), y1: axisY - 28, x2: tx(8, 13, 8, 0), y2: axisY - 10, stroke: C.fail, 'stroke-width': 1.2, 'stroke-dasharray': '3 3'}));
+
+  g.appendChild(el('text', {x: 20, y: 508, class: 'small muted'}, '型 A・型 B は §1 の分類、§2 は学習母数の問題。型 A は本番で「捨てられた」実績が出る前(次の月次実行 09-01 の前)に、コードを読んで見つけている'));
+</script>
+</body></html>

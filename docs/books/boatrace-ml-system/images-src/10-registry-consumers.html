@@ -1,0 +1,27 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>Fig.render(document.getElementById("fig"), {
+  w: 1100, h: 570,
+  boxes: [
+    { id: "reg", x: 340, y: 220, w: 300, h: 140, title: "registry.py", sub: "PREDICTORS = (PredictorSpec, …)<br/>active_predictors() が唯一の参照点", style: { borderWidth: "3px" } },
+    { id: "c1", x: 800, y: 40, w: 280, h: 72, html: '<div class="t" style="font-size:17px">build_index.py --all-active</div>', sub: "日次バッチ: 朝の index 生成" },
+    { id: "c2", x: 800, y: 150, w: 280, h: 72, title: "preview-realtime.py", sub: "直前バッチ: realtime 行の upsert" },
+    { id: "c3", x: 800, y: 260, w: 280, h: 72, html: '<div class="t" style="font-size:17px">build_weights.py --all-active</div>', sub: "月次バッチ: 場別重みの学習" },
+    { id: "c4", x: 800, y: 370, w: 280, h: 72, title: "gcs_publisher.py", sub: "GCS ミラー: csv_type の生成" },
+    { id: "sh", x: 40, y: 60, w: 300, h: 90, cls: "gray", title: "infra/run*.sh", sub: '<span style="font-size:14px">ACTIVE_PREDICTORS=(v1_basic v10_kimarite)</span>' },
+    { id: "ts", x: 40, y: 430, w: 300, h: 100, title: "fun-site predictors.ts", sub: "packages/shared/src/predictors.ts<br/>同じ predictor_id を持つ" },
+    { id: "gp", x: 520, y: 470, w: 290, h: 70, cls: "gray", title: "GCS ミラー + Pub/Sub", sub: "csv_type = index:{predictor_id}" },
+  ],
+  arrows: [
+    { from: ["c1", "l"], to: ["reg", "r", 0.2] }, { from: ["c2", "l"], to: ["reg", "r", 0.4] }, { from: ["c3", "l"], to: ["reg", "r", 0.6], label: "active_predictors()", labelCls: "navy", t: 0.5, dy: -16 },
+    { from: ["c4", "l"], to: ["reg", "r", 0.8] },
+    { from: ["sh", "r"], to: ["reg", "t", 0.2], route: "h", dashed: true, color: "red", label: "手動同期", labelCls: "red", t: 0.3 },
+    { from: ["ts", "t", 0.5], to: ["reg", "b", 0.2], route: "vhv", mid: 395, label: "predictor_id で対応", t: 0.55 },
+    { from: ["c4", "b"], to: ["gp", "t", 0.5], route: "vhv", mid: 456 },
+    { from: ["gp", "l"], to: ["ts", "r", 0.75], label: "Pub/Sub → fun-site batch" },
+  ],
+  notes: [
+  ],
+});
+</script></body></html>

@@ -1,0 +1,33 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>Fig.render(document.getElementById("fig"), {
+  w: 1200, h: 620,
+  boxes: [
+    { id: "in", x: 20, y: 60, w: 240, h: 110, cls: "gray", title: "全履歴の CSV", sub: "results/realtime × previews<br/>× race_cards" },
+    { id: "bk", x: 300, y: 50, w: 280, h: 130, title: "build_kimarite.py", html: '<div><span class="tag">monthly-weights</span> 毎月 1 日</div>', sub: "全履歴で再学習(32 クラスの<br/>多項ロジスティック回帰)" },
+    { id: "coef", x: 620, y: 60, w: 270, h: 110, title: "係数 CSV", sub: "tables/cell_coef_daily.csv<br/>tables/cell_coef_realtime.csv<br/>git commit" },
+    { id: "dayin", x: 20, y: 280, w: 240, h: 110, cls: "gray", title: "当日の CSV", sub: "race_cards(daily)<br/>+ previews(realtime)" },
+    { id: "probs", x: 300, y: 260, w: 280, h: 150, html: '<div class="t" style="font-size:18px">build_kimarite_probs.py</div><div><span class="tag">daily-sync</span> <span class="tag">preview-realtime</span></div>', sub: "daily: --mode daily<br/>realtime: write_day() で upsert<br/>sklearn 非依存、係数 CSV を読む" },
+    { id: "outp", x: 620, y: 280, w: 270, h: 110, html: '<div class="t" style="font-size:17px">kimarite/YYYY/MM/DD.csv</div>', sub: "荒れ度 + P_セル × 32<br/>(1 レース 1 行)" },
+    { id: "fun", x: 930, y: 280, w: 250, h: 110, title: "fun-site batch", sub: "GCS ミラー経由で読み<br/>UpsetMeter.astro で表示" },
+    { id: "resin", x: 20, y: 490, w: 240, h: 100, cls: "gray", title: "results/realtime", sub: "実測の決まり手・1 着コース" },
+    { id: "cal", x: 300, y: 480, w: 280, h: 120, html: '<div class="t" style="font-size:17px">build_kimarite_calibration.py</div><div><span class="tag">monthly-weights</span> 校正監視</div>', sub: "予測帯別の予測平均と実測率" },
+    { id: "calcsv", x: 620, y: 490, w: 270, h: 100, title: "calibration.csv", sub: "tables/ に git commit<br/>(kimarite-calibration.png の元)" },
+  ],
+  arrows: [
+    { from: ["in", "r"], to: ["bk", "l"] },
+    { from: ["bk", "r"], to: ["coef", "l"] },
+    { from: ["coef", "b", 0.5], to: ["probs", "t", 0.5], route: "vhv", mid: 225, label: "係数 CSV を読む", t: 0.5 },
+    { from: ["dayin", "r"], to: ["probs", "l"] },
+    { from: ["probs", "r"], to: ["outp", "l"] },
+    { from: ["outp", "r"], to: ["fun", "l"] },
+    { from: ["outp", "b", 0.5], to: ["cal", "t", 0.5], route: "vhv", mid: 440, label: "月次で突き合わせ", t: 0.5 },
+    { from: ["resin", "r"], to: ["cal", "l"] },
+    { from: ["cal", "r"], to: ["calcsv", "l"] },
+  ],
+  notes: [
+    { x: 930, y: 70, w: 250, html: "係数のクラス構成が<br/>kimarite.CELLS とずれていたら<br/>スキーマチェックで落ちる", style: { fontSize: "14px", color: "#4B5563" } },
+  ],
+});
+</script></body></html>

@@ -1,0 +1,51 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>Fig.render(document.getElementById("fig"), {
+  w: 1200, h: 740,
+  groups: [
+    { id: "L", x: 20, y: 30, w: 250, h: 330, label: "boatracecsv", cls: "solid" },
+    { id: "R", x: 720, y: 30, w: 460, h: 690, label: "fun-site", cls: "solid" },
+    { id: "JOB", x: 740, y: 210, w: 420, h: 480, label: "Cloud Run Job: fun-site-batch", cls: "gray tint", labelIn: true },
+  ],
+  boxes: [
+    { id: "pr", x: 40, y: 90, w: 210, h: 90, title: "preview-realtime", sub: "2 分毎、1 サイクルの<br/>最後(git push の後)" },
+    { id: "ds", x: 40, y: 220, w: 210, h: 90, title: "daily-sync", sub: "run-daily-sync.sh の<br/>末尾で 1 回" },
+    { id: "pub", x: 290, y: 155, w: 170, h: 90, cls: "gray", html: '<div class="t" style="font-size:17px">gcs_publisher.py</div>', sub: "MD5 dedup" },
+    { id: "ps", x: 480, y: 60, w: 220, h: 100, title: "Pub/Sub topic", sub: "fun-site-realtime-completed<br/>1 実行 1 メッセージ" },
+    { id: "gcsm", x: 480, y: 230, w: 220, h: 110, title: "GCS ミラー", sub: "gs://boatrace-realtime-<br/>data-…/data/…<br/>内容が変わった CSV だけ" },
+    { id: "ea", x: 740, y: 60, w: 180, h: 100, title: "Eventarc trigger", sub: "messagePublished<br/>→ Workflow を起動" },
+    { id: "wf", x: 950, y: 60, w: 210, h: 100, title: "Workflow", sub: "fun-site-realtime-dispatcher<br/>message.data → args" },
+    { id: "s1", x: 760, y: 255, w: 250, h: 50, cls: "white", title: "event-parser" },
+    { id: "s2", x: 760, y: 325, w: 250, h: 50, cls: "white", title: "build-state check" },
+    { id: "s3", x: 760, y: 395, w: 250, h: 50, cls: "white", title: "fetcher" },
+    { id: "s4", x: 760, y: 465, w: 250, h: 50, cls: "white", html: '<div class="t" style="font-size:18px">prediction-builder + aggregator</div>' },
+    { id: "s5", x: 760, y: 535, w: 250, h: 50, cls: "white", title: "astro build" },
+    { id: "s6", x: 760, y: 605, w: 250, h: 50, cls: "white", title: "deploy + last-build.json" },
+    { id: "er", x: 1035, y: 325, w: 115, h: 50, cls: "gray pill", html: '<div class="t" style="font-size:17px">早期 return</div>' },
+    { id: "web", x: 480, y: 595, w: 220, h: 70, html: '<div class="t" style="font-size:17px">gs://fun-site-web-…/</div>', sub: "静的ファイル" },
+    { id: "cdn", x: 300, y: 595, w: 150, h: 70, title: "Cloud CDN" },
+    { id: "lb", x: 130, y: 595, w: 140, h: 70, title: "HTTPS LB" },
+    { id: "user", x: 20, y: 595, w: 90, h: 70, cls: "gray pill", title: "利用者" },
+  ],
+  arrows: [
+    { from: ["pr", "r"], to: ["pub", "l", 0.3], route: "hvh", mid: 275 },
+    { from: ["ds", "r"], to: ["pub", "l", 0.7], route: "hvh", mid: 275 },
+    { from: ["pub", "r", 0.3], to: ["ps", "l", 0.5], route: "hvh", mid: 465, label: "(2) 通知", t: 0.85, dy: -18 },
+    { from: ["pub", "r", 0.7], to: ["gcsm", "l", 0.5], route: "hvh", mid: 465, label: "(1) CSV", t: 0.85, dy: 18 },
+    { from: ["ps", "r"], to: ["ea", "l"] },
+    { from: ["ea", "r"], to: ["wf", "l"] },
+    { from: [1130, 160], to: ["s1", "r"], route: "v", label: "Job 実行", t: 0.22 },
+    { from: ["s1", "b"], to: ["s2", "t"] }, { from: ["s2", "b"], to: ["s3", "t"] }, { from: ["s3", "b"], to: ["s4", "t"] },
+    { from: ["s4", "b"], to: ["s5", "t"] }, { from: ["s5", "b"], to: ["s6", "t"] },
+    { from: ["s2", "r"], to: ["er", "l"], color: "red" },
+    { from: ["gcsm", "b", 0.5], to: ["s3", "l"], route: "v", dashed: true, color: "navy", label: "CSV 取得(GCS)", t: 0.6, dy: -18, labelCls: "navy" },
+    { from: ["s6", "l"], to: ["web", "r"], label: "rsync", t: 0.5, dy: -18 },
+    { from: ["web", "l"], to: ["cdn", "r"] }, { from: ["cdn", "l"], to: ["lb", "r"] }, { from: ["lb", "l"], to: ["user", "r"] },
+  ],
+  notes: [
+    { x: 1030, y: 382, w: 130, cls: "red", html: "generation が<br/>前回と全て同じ", style: { fontSize: "14px", lineHeight: "1.3" } },
+    { x: 300, y: 445, w: 400, html: "Pub/Sub の payload は「そのサイクルで変わった<br/>レースの集合」1 件。GCS の generation は<br/>内容が変わったときだけ進む(MD5 dedup)", style: { fontSize: "15px", color: "#4B5563" } },
+  ],
+});
+</script></body></html>

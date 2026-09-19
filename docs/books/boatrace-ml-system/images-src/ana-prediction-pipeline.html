@@ -1,0 +1,82 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>const root = document.getElementById("fig");
+Fig.render(root, {
+  w: 1200, h: 620,
+  boxes: [
+    { id: "s1", x: 20, y: 60, w: 280, h: 280, cls: "white", html: '<div class="t" style="font-size:17px">Stage1: 決まり手 × 1 着コース</div>', sub: "32 クラス確率 P1[セル](第 20 章)", style: { justifyContent: "flex-start" } },
+    { id: "s2", x: 350, y: 60, w: 310, h: 280, cls: "white", html: '<div class="t" style="font-size:18px">Stage2: セル条件付き 2-3 着表</div>', sub: "P(2着, 3着 | セル)、k=150 で収縮<br/>例: セル = まくり差し_3(1 着 = 3 コース)", style: { justifyContent: "flex-start" } },
+    { id: "comp", x: 710, y: 60, w: 260, h: 280, cls: "white", html: '<div class="t" style="font-size:18px">合成: 120 通りの分布</div>', sub: "セルで周辺化<br/>P(c1,c2,c3) = Σ_cell P1[cell]·P(c2,c3|cell)", style: { justifyContent: "flex-start" } },
+    { id: "z", x: 350, y: 430, w: 310, h: 60, cls: "gray", html: '<div class="t" style="font-size:17px">強さpt → z_c = (pt − 50) / 10</div>' },
+    { id: "pl", x: 710, y: 430, w: 260, h: 130, title: "Plackett-Luce", sub: "強さ exp(β · z_c)、β = 2.4<br/>1 位 → 2 位 → 3 位の順に引く<br/>→ 120 通りの分布" },
+    { id: "blend", x: 1010, y: 240, w: 170, h: 100, title: "ブレンド", sub: "w = 0.7 : 0.3" },
+    { id: "picks", x: 1010, y: 30, w: 170, h: 160, cls: "white", title: "上位 5 点", sub: "1 コース頭を除く", style: { justifyContent: "flex-start", borderWidth: "3px" } },
+  ],
+  arrows: [
+    { from: ["s1", "r"], to: ["s2", "l"], label: "× セルごと" },
+    { from: ["s2", "r"], to: ["comp", "l"], label: "Σ セル" },
+    { from: ["z", "t", 0.5], to: ["s2", "b", 0.5], color: "red", label: "γ 変調(γ = 0.5)<br/>exp(γ·z_c2) · exp(γ·z_c3 / 2)", labelCls: "red", dx: 165 },
+    { from: ["z", "r"], to: ["pl", "l"], route: "hvh", mid: 690 },
+    { from: ["comp", "r"], to: ["blend", "l"], route: "hvh", mid: 990, label: "w", t: 0.5 },
+    { from: ["pl", "r"], to: ["blend", "b", 0.5], route: "h", label: "1 − w", t: 0.3 },
+    { from: ["blend", "t"], to: ["picks", "b"] },
+  ],
+  notes: [
+    { x: 20, y: 352, w: 560, cls: "navy center", html: "kimarite_joint(p1, tab, z, γ): Stage1 × Stage2 → 合成", style: { fontSize: "17px" } },
+    { x: 710, y: 570, w: 260, cls: "navy center", html: "plackett_luce(z, β)", style: { fontSize: "17px" } },
+    { x: 1008, y: 352, w: 84, cls: "navy", html: "blend(…,w)", style: { fontSize: "14px", whiteSpace: "nowrap" } },
+    { x: 1008, y: 198, w: 84, cls: "navy", html: "top_picks<br>(probs, 5)", style: { fontSize: "14px", lineHeight: "1.2" } },
+    { x: 20, y: 440, w: 300, html: "図中のグラフは模式図。1 コース頭(左端の背の高い棒)が最大でも、買い目は 1 コース頭を除いた上位 5 点になる", style: { fontSize: "14px", color: "#6B7280" } },
+  ],
+});
+// 箱の上に描く第 2 レイヤー(棒グラフ・ヒートマップ)
+const svg = Fig.el("svg", { class: "layer", width: 1200, height: 600, viewBox: "0 0 1200 600" }, root);
+const NAVY = "#2B4C9B", RED = "#E5002D";
+const txt = (x, y, s, o = {}) => { const t = Fig.el("text", { x, y, "font-size": o.size || 13, fill: o.fill || "#374151", "text-anchor": o.anchor || "middle", "font-family": "Hiragino Sans" }, svg); t.textContent = s; return t; };
+// Stage1: 32 本の棒(模式)
+{
+  const x0 = 40, y0 = 312, W = 240, H = 140, n = 32, bw = W / n;
+  const seed = [0.95,0.12,0.08,0.05,0.04,0.03,0.30,0.18,0.10,0.07,0.05,0.03,0.05,0.22,0.16,0.10,0.06,0.03,0.04,0.12,0.20,0.14,0.08,0.03,0.02,0.05,0.10,0.12,0.09,0.04,0.02,0.02];
+  seed.forEach((h, i) => Fig.el("rect", { x: x0 + i * bw + 1, y: y0 - h * H, width: bw - 2, height: h * H, fill: i === 0 ? RED : NAVY, opacity: i === 0 ? 1 : 0.85 }, svg));
+  Fig.el("line", { x1: x0, y1: y0, x2: x0 + W, y2: y0, stroke: "#6B7280", "stroke-width": 1.5 }, svg);
+  txt(x0 + 8, y0 + 16, "逃げ_1", { anchor: "start", fill: RED });
+  txt(x0 + W, y0 + 16, "… まくり差し_6", { anchor: "end" });
+  txt(x0 + 12, y0 - H + 4, "P1", { anchor: "start", fill: NAVY });
+}
+// Stage2: 6×6 ヒートマップ(まくり差し_3、1着 = 3 コース)
+{
+  const x0 = 455, y0 = 188, c = 20;
+  const v = { "1,4": 0.205, "1,5": 0.176, "1,2": 0.152, "1,6": 0.096, "2,4": 0.050, "2,5": 0.04, "2,6": 0.03, "4,5": 0.03, "4,1": 0.04, "5,1": 0.03, "2,1": 0.035, "4,2": 0.025, "5,4": 0.02, "6,1": 0.02, "4,6": 0.02, "5,2": 0.015, "6,4": 0.015, "1,3": 0, "6,5": 0.01, "5,6": 0.01, "6,2": 0.01, "2,3": 0, "4,3": 0, "5,3": 0, "6,3": 0 };
+  for (let r = 1; r <= 6; r++) for (let k = 1; k <= 6; k++) {
+    const dead = r === 3 || k === 3 || r === k;
+    const p = dead ? 0 : (v[`${r},${k}`] ?? 0.012);
+    const a = dead ? 0 : Math.min(1, 0.12 + p / 0.205 * 0.88);
+    Fig.el("rect", { x: x0 + (k - 1) * c, y: y0 + (r - 1) * c, width: c - 1, height: c - 1, fill: dead ? "#E5E7EB" : NAVY, "fill-opacity": dead ? 1 : a }, svg);
+    if (!dead && p >= 0.09) txt(x0 + (k - 1) * c + c / 2, y0 + (r - 1) * c + c / 2 + 4, p.toFixed(2).slice(1), { size: 9, fill: "#fff" });
+  }
+  for (let i = 1; i <= 6; i++) { txt(x0 + (i - 1) * c + c / 2, y0 - 6, String(i), { size: 12 }); txt(x0 - 8, y0 + (i - 1) * c + c / 2 + 4, String(i), { size: 12, anchor: "end" }); }
+  txt(x0 + 3 * c, y0 - 20, "3 着コース", { size: 12 });
+  const t = txt(x0 - 26, y0 + 3 * c, "2 着コース", { size: 12 }); t.setAttribute("transform", `rotate(-90 ${x0 - 26} ${y0 + 3 * c})`);
+  txt(x0 + 3 * c, y0 + 6 * c + 16, "灰: 1 着と同じコース / c2 = c3 は 0", { size: 11 });
+}
+// 合成: 120 本(模式)
+{
+  const x0 = 725, y0 = 312, W = 230, H = 130, n = 120, bw = W / n;
+  let s = 7;
+  const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+  for (let i = 0; i < n; i++) {
+    const base = i < 20 ? 0.25 : 0.06;
+    const h = Math.min(1, base * (0.3 + rnd() * 1.4) + (i % 17 === 0 ? 0.35 : 0) + (i === 3 ? 0.6 : 0));
+    Fig.el("rect", { x: x0 + i * bw, y: y0 - h * H, width: Math.max(1, bw - 0.6), height: h * H, fill: NAVY, opacity: 0.85 }, svg);
+  }
+  Fig.el("line", { x1: x0, y1: y0, x2: x0 + W, y2: y0, stroke: "#6B7280", "stroke-width": 1.5 }, svg);
+  txt(x0 + W / 2, y0 + 16, "3 連単 120 通り(合計 1)", { size: 12 });
+}
+// 上位 5 点(模式)
+{
+  const x0 = 1035, y0 = 178, bw = 22, H = 60;
+  [1, 0.8, 0.65, 0.55, 0.5].forEach((h, i) => Fig.el("rect", { x: x0 + i * (bw + 6), y: y0 - h * H, width: bw, height: h * H, fill: RED }, svg));
+  Fig.el("line", { x1: x0 - 5, y1: y0, x2: x0 + 5 * (bw + 6), y2: y0, stroke: "#6B7280", "stroke-width": 1.5 }, svg);
+}
+</script></body></html>

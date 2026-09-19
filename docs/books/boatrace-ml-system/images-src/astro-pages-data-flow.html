@@ -1,0 +1,50 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>Fig.render(document.getElementById("fig"), {
+  w: 1200, h: 760,
+  groups: [
+    { id: "CSV", x: 20, y: 60, w: 300, h: 680, label: "上流 CSV(data/)", cls: "gray" },
+    { id: "JSON", x: 400, y: 60, w: 340, h: 680, label: "生成 JSON(src/data/)", cls: "solid" },
+    { id: "PAGES", x: 820, y: 60, w: 360, h: 680, label: "Astro ページ(web)", cls: "solid" },
+  ],
+  boxes: [
+    { id: "programs", x: 40, y: 110, w: 260, h: 120, cls: "gray left", title: "programs/", sub: "title, race_cards, waku10,<br/>recent_national / recent_local,<br/>motor_stats" },
+    { id: "previews", x: 40, y: 250, w: 260, h: 110, cls: "gray left", title: "previews/", sub: "stt, tkz, sui,<br/>original_exhibition, tokuten_hayami" },
+    { id: "estimate", x: 40, y: 380, w: 260, h: 150, cls: "gray left", title: "estimate/", sub: "{predictor_id}, racer_st, kimarite,<br/>motor_pt/{runs,motors,baseline},<br/>stadium/win_rate, sui_params,<br/>weights/{id}/YYYY-MM" },
+    { id: "results", x: 40, y: 550, w: 260, h: 80, cls: "gray left", title: "results/", sub: "realtime, payouts" },
+    { id: "ss", x: 420, y: 100, w: 300, h: 56, html: '<div class="t" style="font-size:18px">_meta/series-summary.json</div>' },
+    { id: "races", x: 420, y: 180, w: 300, h: 130, html: '<div class="t" style="font-size:18px">races/{date}/{raceCode}.json</div>', sub: "1 レース 1 ファイル(RacePrediction)<br/>複数 CSV をレース単位に結合", style: { borderWidth: "3px" } },
+    { id: "stats", x: 420, y: 340, w: 300, h: 56, html: '<div class="t" style="font-size:18px">predictors/stats.json</div>' },
+    { id: "bd", x: 420, y: 420, w: 300, h: 56, html: '<div class="t" style="font-size:18px">predictors/breakdown.json</div>' },
+    { id: "dates", x: 420, y: 500, w: 300, h: 56, html: '<div class="t" style="font-size:18px">_meta/dates.json</div>' },
+    { id: "p_index", x: 840, y: 100, w: 320, h: 52, title: "/(トップ)" },
+    { id: "p_std", x: 840, y: 172, w: 320, h: 52, title: "/stadium/{01-24}/" },
+    { id: "p_race", x: 840, y: 244, w: 320, h: 52, title: "/race/{date}/{場}/{R}/" },
+    { id: "p_chk", x: 840, y: 316, w: 320, h: 90, title: "検算 5 ページ(第 16 章)", sub: "…/racers/ /motors/ /lanes/<br/>/exhibition/ /weather/(同じ JSON)" },
+    { id: "p_pred", x: 840, y: 430, w: 320, h: 52, title: "/predictors/" },
+    { id: "p_stats", x: 840, y: 502, w: 320, h: 52, title: "/stats/" },
+    { id: "p_arch", x: 840, y: 574, w: 320, h: 52, title: "/archive/" },
+    { id: "p_archd", x: 840, y: 646, w: 320, h: 70, title: "/archive/{date}/", sub: "races/{date}/*.json も読む" },
+  ],
+  arrows: [
+    { from: ["programs", "r"], to: ["races", "l", 0.2] },
+    { from: ["previews", "r"], to: ["races", "l", 0.4] },
+    { from: ["estimate", "r"], to: ["races", "l", 0.6] },
+    { from: ["results", "r"], to: ["races", "l", 0.8] },
+    { from: ["ss", "r"], to: ["p_index", "l", 0.3] },
+    { from: ["races", "r", 0.1], to: ["p_index", "l", 0.7], label: "当日ぶん", t: 0.5, dy: -14 },
+    { from: ["races", "r", 0.35], to: ["p_std", "l", 0.5] },
+    { from: ["races", "r", 0.6], to: ["p_race", "l", 0.5] },
+    { from: ["races", "r", 0.85], to: ["p_chk", "l", 0.4] },
+    { from: ["stats", "r"], to: ["p_pred", "l"] },
+    { from: ["bd", "r"], to: ["p_stats", "l"] },
+    { from: ["dates", "r", 0.4], to: ["p_arch", "l"] },
+    { from: ["dates", "r", 0.7], to: ["p_archd", "l", 0.4] },
+  ],
+  notes: [
+    { x: 420, y: 580, w: 310, html: "stats / breakdown / series-summary は<br/>races/*.json の digest から集計(aggregator)。<br/>dates.json は dates-index が生成", style: { fontSize: "14px", color: "#4B5563" } },
+    { x: 400, y: 12, w: 780, cls: "navy", html: "全ページがビルド時に JSON を読む。ランタイム fetch なし、配信 HTML に JavaScript なし" },
+  ],
+});
+</script></body></html>
