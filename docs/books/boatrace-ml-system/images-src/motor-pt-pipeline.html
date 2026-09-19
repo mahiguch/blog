@@ -1,0 +1,34 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>Fig.render(document.getElementById("fig"), {
+  w: 1200, h: 600,
+  boxes: [
+    { id: "rc", x: 20, y: 50, w: 260, h: 100, cls: "gray", title: "race_cards 節間成績", sub: "D1走1〜D7走2 の 14 スロット<br/>節最終日の 1 ファイルで節全体" },
+    { id: "ds", x: 320, y: 50, w: 260, h: 100, title: "detect_sessions()", sub: "連続開催日を 1 節に束ねる<br/>90 日遡り、最大 10 節" },
+    { id: "pr", x: 620, y: 50, w: 260, h: 100, title: "期起算日で剪定", sub: "起算日(motor_stats)より前の<br/>節を落とし、直近 6 節を採用" },
+    { id: "mr", x: 920, y: 50, w: 260, h: 100, title: "MotorRun 列", sub: "1 走 1 レコード<br/>(級別・グレード・進入・着順)" },
+    { id: "base", x: 20, y: 260, w: 400, h: 100, title: "全 24 場・全モーターの MotorRun をプール", sub: "セル(級別, グレード分類, 進入)ごとの<br/>μ / σ = baseline" },
+    { id: "one", x: 500, y: 260, w: 200, h: 100, title: "1 基の MotorRun 列", sub: "6 節ぶん" },
+    { id: "z", x: 740, y: 260, w: 200, h: 100, title: "z 残差", sub: "(raw − μ_cell) / σ_cell" },
+    { id: "w", x: 980, y: 260, w: 200, h: 100, title: "減衰重み w", sub: "半減期 60 日" },
+    { id: "sum", x: 980, y: 460, w: 200, h: 100, title: "Σw, Σwz, Σw²", sub: "3 つの累積和" },
+    { id: "neff", x: 740, y: 460, w: 200, h: 100, title: "n_eff", sub: "(Σw)² / Σw²(Kish)" },
+    { id: "shr", x: 500, y: 460, w: 200, h: 100, title: "収縮", sub: "n_eff / (n_eff + k)<br/>k = 10" },
+    { id: "raw", x: 260, y: 460, w: 200, h: 100, title: "素点", sub: "収縮係数 × Σwz / Σw" },
+    { id: "hen", x: 20, y: 460, w: 200, h: 100, cls: "gray", title: "場別偏差値化", sub: "第 4 章 → モーターpt" },
+  ],
+  arrows: [
+    { from: ["rc", "r"], to: ["ds", "l"] }, { from: ["ds", "r"], to: ["pr", "l"] }, { from: ["pr", "r"], to: ["mr", "l"] },
+    { from: ["mr", "b", 0.3], to: ["base", "t", 0.5], route: "vhv", mid: 200, label: "全 24 場ぶん", t: 0.5 },
+    { from: ["mr", "b", 0.7], to: ["one", "t", 0.5], route: "vhv", mid: 230, label: "モーター 1 基ぶん", t: 0.5 },
+    { from: ["base", "b", 0.5], to: ["z", "b", 0.5], route: "vhv", mid: 410, label: "μ_cell, σ_cell", t: 0.5 },
+    { from: ["one", "r"], to: ["z", "l"] }, { from: ["z", "r"], to: ["w", "l"] },
+    { from: ["w", "b"], to: ["sum", "t"] },
+    { from: ["sum", "l"], to: ["neff", "r"] }, { from: ["neff", "l"], to: ["shr", "r"] }, { from: ["shr", "l"], to: ["raw", "r"] }, { from: ["raw", "l"], to: ["hen", "r"] },
+  ],
+  notes: [
+    { x: 300, y: 158, w: 300, cls: "red center", html: "✕ 当日は履歴に含めない" },
+  ],
+});
+</script></body></html>

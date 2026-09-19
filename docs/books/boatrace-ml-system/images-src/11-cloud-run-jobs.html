@@ -1,0 +1,55 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>Fig.render(document.getElementById("fig"), {
+  w: 1200, h: 815,
+  groups: [
+    { id: "SCH", x: 40, y: 30, w: 960, h: 140, label: "Cloud Scheduler(Asia/Tokyo)", cls: "gray", labelIn: true },
+    { id: "JOBS", x: 40, y: 220, w: 960, h: 170, label: "Cloud Run Jobs: 1 つの Docker イメージ(Artifact Registry)から --command で分岐", cls: "solid tint", labelIn: true },
+  ],
+  boxes: [
+    { id: "s1", x: 250, y: 80, w: 235, h: 70, title: "monthly-weights", sub: "0 6 1 * *" },
+    { id: "s2", x: 500, y: 80, w: 235, h: 70, title: "daily-sync", sub: "30 7 * * *" },
+    { id: "s3", x: 750, y: 80, w: 235, h: 70, html: '<div class="t" style="font-size:17px">preview-realtime-daytime</div>', sub: "*/2 8-22 * * *" },
+    { id: "img", x: 45, y: 265, w: 180, h: 100, cls: "gray", html: '<div class="t" style="font-size:18px">Docker イメージ</div>', sub: "python:3.11 + git<br/>3 Job で 1 本" },
+    { id: "j1", x: 250, y: 265, w: 235, h: 100, title: "monthly-weights", sub: "run-monthly-weights.sh<br/>2 vCPU / 2 GiB / 3,600 秒" },
+    { id: "j2", x: 500, y: 265, w: 235, h: 100, title: "daily-sync", sub: "run-daily-sync.sh<br/>2 vCPU / 2 GiB / 3,600 秒" },
+    { id: "j3", x: 750, y: 265, w: 235, h: 100, title: "preview-realtime", sub: "run.sh<br/>1 vCPU / 1 GiB / 300 秒" },
+    { id: "sec", x: 1030, y: 250, w: 150, h: 110, cls: "gray dashed", title: "Secret Manager", sub: "github-token" },
+    { id: "gh", x: 250, y: 470, w: 235, h: 80, title: "GitHub", sub: "git push(main)。3 Job とも" },
+    { id: "pub", x: 600, y: 470, w: 380, h: 80, title: "GCS ミラー + Pub/Sub publish", sub: "gcs_publisher.py。daily-sync と preview-realtime だけ" },
+    { id: "gcs", x: 600, y: 600, w: 190, h: 70, title: "GCS ミラー", sub: "当日 CSV" },
+    { id: "ps", x: 800, y: 600, w: 200, h: 70, title: "Pub/Sub topic", sub: "fun-site へ通知" },
+  ],
+  arrows: [
+    { from: ["s1", "b"], to: ["j1", "t"] },
+    { from: ["s2", "b"], to: ["j2", "t"], label: "HTTP POST …:run(OIDC トークン)", labelCls: "wrap", dx: 0 },
+    { from: ["s3", "b"], to: ["j3", "t"] },
+    { from: ["img", "r"], to: ["j1", "l"] },
+    { from: ["sec", "l"], to: ["JOBS", "r", 0.5], dashed: true, color: "gray" },
+    { from: ["j1", "b", 0.5], to: ["gh", "t", 0.5] },
+    { from: ["j2", "b", 0.3], to: ["gh", "t", 0.7], route: "vhv", mid: 425 },
+    { from: ["j3", "b", 0.3], to: ["gh", "t", 0.9], route: "vhv", mid: 445 },
+    { from: ["j2", "b", 0.7], to: ["pub", "t", 0.2] },
+    { from: ["j3", "b", 0.7], to: ["pub", "t", 0.8] },
+    { from: ["pub", "b", 0.22], to: ["gcs", "t", 0.5] },
+    { from: ["pub", "b", 0.78], to: ["ps", "t", 0.5] },
+  ],
+  lines: [
+    { x1: 80, y1: 740, x2: 1140, y2: 740, color: "dark", width: 3 },
+    { x1: 200, y1: 728, x2: 200, y2: 752, color: "dark", width: 3 },
+    { x1: 500, y1: 728, x2: 500, y2: 752, color: "dark", width: 3 },
+    { x1: 800, y1: 728, x2: 800, y2: 752, color: "dark", width: 3 },
+    { x1: 1100, y1: 728, x2: 1100, y2: 752, color: "dark", width: 3 },
+    { x1: 800, y1: 740, x2: 1100, y2: 740, color: "navy", width: 10 },
+  ],
+  notes: [
+    { x: 60, y: 82, w: 180, html: "Invoker SA の<br/>OIDC トークン付き<br/>HTTP POST で<br/>:run API を叩く", style: { fontSize: "15px" } },
+    { x: 1010, y: 370, w: 190, html: "--set-secrets で 3 Job に<br/>GITHUB_TOKEN として注入", style: { fontSize: "14px" } },
+    { x: 80, y: 690, w: 300, cls: "navy", html: "毎月 1 日の起動順(JST)" },
+    { x: 80, y: 758, w: 240, cls: "center", html: "<b>06:00</b><br/>monthly-weights(学習)" },
+    { x: 380, y: 758, w: 240, cls: "center", html: "<b>07:30</b><br/>daily-sync(日次推論)" },
+    { x: 780, y: 758, w: 340, cls: "center", html: "<b>08:00 〜 22:58</b> 2 分毎<br/>preview-realtime(直前推論)" },
+  ],
+});
+</script></body></html>

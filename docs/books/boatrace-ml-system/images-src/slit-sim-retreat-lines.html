@@ -1,0 +1,37 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="fig.css"></head>
+<body><div id="fig"></div>
+<script src="fig.js"></script>
+<script>const J = (id, y, cls, title, sub) => ({ id, x: 690, y, w: 370, h: 80, cls, html: `<div class="t">${title}</div>`, sub, style: { fontWeight: 700 } });
+Fig.render(document.getElementById("fig"), {
+  w: 1100, h: 780,
+  groups: [
+    { id: "PLAN", x: 40, y: 30, w: 1020, h: 610, label: "Phase 0 実行前に設計(計画 §6 の縮退順序)", cls: "solid" },
+  ],
+  boxes: [
+    { id: "main", x: 180, y: 80, w: 460, h: 80, title: "本命案: 隊形 6 分類 + 決まり手確率", sub: "レースごとに隊形と決まり手の確率を出す", style: { borderWidth: "3px" } },
+    { id: "crit", x: 180, y: 200, w: 460, h: 80, cls: "gray", title: "Phase 0 受け入れ基準 1〜4", sub: "in_margin 分布 / 隊形周辺 ±3pt / 五分位校正 ±5pt / Brier &lt; 定数" },
+    { id: "r1", x: 180, y: 320, w: 460, h: 80, title: "撤退 1: 隊形 3 分類", sub: "イン先手 / 揃い / イン遅れ。粗いほど校正は取りやすい" },
+    { id: "r2", x: 180, y: 430, w: 460, h: 80, title: "撤退 2: 決まり手確率を落とす", sub: "隊形確率だけ出す(二段推論の誤差を避ける)" },
+    { id: "r3", x: 180, y: 540, w: 460, h: 80, title: "撤退 3: 確率をやめ ST 帯(p25〜p75)のみ", sub: "σ 推定と描画前半だけ。実装規模 約 1/3" },
+    { id: "impl", x: 180, y: 680, w: 460, h: 80, title: "実装: racer_st.py に 2 列追加", sub: "N枠_推定ST_p25 / N枠_推定ST_p75(第 15 章の帯)", style: { borderWidth: "3px" } },
+    J("j0", 200, "red", '<span class="tag red">FAIL</span> 4 基準すべて', "隊形 Brier 0.6402 が定数 0.6343 に負ける"),
+    J("j1", 320, "red", '<span class="tag red">FAIL</span>', "σ スケール 0.60〜1.40 に 3 指標を<br/>同時に満たす値がない"),
+    J("j2", 430, "red", '<span class="tag red">FAIL</span>', "撤退 1 が前提なので同時に不成立"),
+    { id: "j3", x: 690, y: 540, w: 370, h: 80, html: '<div class="t"><span class="tag green">PASS</span></div>', sub: "Student-t で名目 50/80/95% の<br/>被覆が ±1pt 以内(§4.4)", style: { borderColor: "#008000", background: "#F0FDF4" } },
+  ],
+  arrows: [
+    { from: ["main", "b"], to: ["crit", "t"] },
+    { from: ["crit", "b"], to: ["r1", "t"], label: "FAIL なら" },
+    { from: ["r1", "b"], to: ["r2", "t"], label: "FAIL なら" },
+    { from: ["r2", "b"], to: ["r3", "t"], label: "FAIL なら" },
+    { from: ["r3", "b"], to: ["impl", "t"], label: "PASS → 出荷", labelCls: "navy" },
+    { from: ["crit", "r"], to: ["j0", "l"], noHead: true, color: "gray" },
+    { from: ["r1", "r"], to: ["j1", "l"], noHead: true, color: "gray" },
+    { from: ["r2", "r"], to: ["j2", "l"], noHead: true, color: "gray" },
+    { from: ["r3", "r"], to: ["j3", "l"], noHead: true, color: "gray" },
+  ],
+  notes: [
+    { x: 690, y: 150, w: 370, cls: "navy", html: "Phase 0 の判定(report.md、2026-08-10)" },
+  ],
+});
+</script></body></html>
