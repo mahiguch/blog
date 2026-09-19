@@ -1,0 +1,96 @@
+<!doctype html>
+<!-- size: 800x600 -->
+<html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css"></head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#111827"/></marker>
+  </defs>
+  <g id="main"></g>
+</svg>
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const g = document.getElementById('main');
+  const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; };
+  const colors = {1:['#fff','#000'],2:['#000','#fff'],3:['#E5002D','#fff'],4:['#0047AB','#fff'],5:['#FFD700','#000'],6:['#008000','#fff']};
+  // 選定値(1 マーク走行距離)の相対位置。値は説明用の例
+  const val = {1: 0.60, 3: 0.44, 4: 0.38, 2: 0.30, 5: 0.15, 6: 0.05};
+  const X0 = 120, X1 = 760, V0 = 0.0, V1 = 0.72;
+  const tx = v => X0 + (v - V0) / (V1 - V0) * (X1 - X0);
+  const TOL = 0.10;
+  const axisY = 190;
+
+  // ── 上段: 数直線と ±窓 ──
+  g.appendChild(el('text', {x: 24, y: 30, class: 'title'}, '① 6 艇を選定値(1 マーク走行距離)の降順に並べ、1 位・2 位・3 位の艇を基準に ±0.10 の窓を取る'));
+  const bands = [
+    {label: '1 着候補の窓', base: 1, y: 70,  color: '#2B4C9B'},
+    {label: '2 着候補の窓', base: 3, y: 105, color: '#2B4C9B'},
+    {label: '3 着候補の窓', base: 4, y: 140, color: '#2B4C9B'},
+  ];
+  bands.forEach((b, i) => {
+    const lo = tx(val[b.base] - TOL), hi = tx(val[b.base] + TOL);
+    g.appendChild(el('rect', {x: lo, y: b.y - 12, width: hi - lo, height: 24, rx: 4, fill: '#EEF2FF', stroke: b.color, 'stroke-width': 1.5}));
+    g.appendChild(el('line', {x1: tx(val[b.base]), y1: b.y - 12, x2: tx(val[b.base]), y2: b.y + 12, stroke: b.color, 'stroke-width': 2}));
+    g.appendChild(el('text', {x: lo - 8, y: b.y + 5, 'text-anchor': 'end', class: 'small h navy'}, `${b.label}(基準 = 降順 ${i + 1} 位の艇 ${b.base})`));
+    g.appendChild(el('text', {x: hi + 8, y: b.y + 5, class: 'small navy'}, '± 0.10'));
+    // 窓に入る艇の縦の目印
+    Object.keys(val).forEach(bn => {
+      if (Math.abs(val[bn] - val[b.base]) <= TOL + 1e-9) g.appendChild(el('circle', {cx: tx(val[bn]), cy: b.y, r: 4, fill: b.color}));
+    });
+  });
+  // 軸
+  g.appendChild(el('line', {x1: X0 - 20, y1: axisY, x2: X1 + 20, y2: axisY, stroke: '#111827', 'stroke-width': 2, 'marker-end': 'url(#arr)'}));
+  g.appendChild(el('text', {x: X1 + 20, y: axisY + 34, 'text-anchor': 'end', class: 'small muted'}, '選定値 大 = 有利'));
+  g.appendChild(el('text', {x: X0 - 20, y: axisY + 34, class: 'small muted'}, '小'));
+  for (let v = 0; v <= 0.7; v += 0.1) g.appendChild(el('line', {x1: tx(v), y1: axisY - 4, x2: tx(v), y2: axisY + 4, stroke: '#9CA3AF'}));
+  // 艇
+  Object.keys(val).forEach(bn => {
+    const x = tx(val[bn]);
+    g.appendChild(el('line', {x1: x, y1: 58, x2: x, y2: axisY - 16, stroke: '#D1D5DB', 'stroke-width': 1, 'stroke-dasharray': '3 3'}));
+    g.appendChild(el('circle', {cx: x, cy: axisY, r: 14, fill: colors[bn][0], stroke: '#111827', 'stroke-width': 2}));
+    g.appendChild(el('text', {x, y: axisY + 5, 'text-anchor': 'middle', fill: colors[bn][1], class: 'h'}, bn));
+  });
+  // 順位ラベル
+  const order = [1, 3, 4, 2, 5, 6];
+  order.forEach((bn, i) => g.appendChild(el('text', {x: tx(val[bn]), y: axisY + 34, 'text-anchor': 'middle', class: 'small muted'}, `${i + 1} 位`)));
+
+  // ── 中段: 候補グループ ──
+  g.appendChild(el('text', {x: 24, y: 280, class: 'title'}, '② 窓に入った艇が各着の候補になる(フォーメーション)'));
+  const groups = [
+    {name: '1 着候補', boats: [1]},
+    {name: '2 着候補', boats: [3, 4]},
+    {name: '3 着候補', boats: [2, 3, 4]},
+  ];
+  const gy = 330;
+  groups.forEach((gr, i) => {
+    const gx = 90 + i * 250;
+    g.appendChild(el('rect', {x: gx, y: gy - 40, width: 180, height: 84, rx: 8, class: 'box'}));
+    g.appendChild(el('text', {x: gx + 90, y: gy - 18, 'text-anchor': 'middle', class: 'h navy'}, gr.name));
+    gr.boats.forEach((bn, j) => {
+      const bx = gx + 90 + (j - (gr.boats.length - 1) / 2) * 44;
+      g.appendChild(el('circle', {cx: bx, cy: gy + 16, r: 15, fill: colors[bn][0], stroke: '#111827', 'stroke-width': 2}));
+      g.appendChild(el('text', {x: bx, y: gy + 21, 'text-anchor': 'middle', fill: colors[bn][1], class: 'h'}, bn));
+    });
+    if (i < 2) g.appendChild(el('text', {x: gx + 215, y: gy + 8, 'text-anchor': 'middle', class: 'title'}, '×'));
+  });
+
+  // ── 下段: 直積から重複を除く ──
+  g.appendChild(el('text', {x: 24, y: 430, class: 'title'}, '③ 直積 1 × 2 × 3 = 6 通りから、同じ艇を 2 度使う出目を除いて 4 点'));
+  const picks = [
+    {t: '1-3-2', ok: true}, {t: '1-3-3', ok: false}, {t: '1-3-4', ok: true},
+    {t: '1-4-2', ok: true}, {t: '1-4-3', ok: true}, {t: '1-4-4', ok: false},
+  ];
+  picks.forEach((p, i) => {
+    const px = 60 + i * 120, py = 470;
+    const stroke = p.ok ? '#2B4C9B' : '#9CA3AF';
+    g.appendChild(el('rect', {x: px, y: py - 20, width: 100, height: 40, rx: 6, fill: p.ok ? '#EEF2FF' : '#F3F4F6', stroke, 'stroke-width': 1.5, 'stroke-dasharray': p.ok ? '' : '5 3'}));
+    g.appendChild(el('text', {x: px + 50, y: py + 6, 'text-anchor': 'middle', class: 'h', fill: p.ok ? '#111827' : '#9CA3AF', style: 'font-size:17px'}, p.t));
+    if (!p.ok) {
+      g.appendChild(el('line', {x1: px + 8, y1: py - 14, x2: px + 92, y2: py + 14, stroke: '#E5002D', 'stroke-width': 2}));
+      g.appendChild(el('text', {x: px + 50, y: py + 40, 'text-anchor': 'middle', class: 'small red'}, '同一艇の重複'));
+    }
+  });
+  g.appendChild(el('text', {x: 24, y: 545, class: 'small navy'}, '買い目 = 1-3-2 / 1-3-4 / 1-4-2 / 1-4-3 の 4 点。どの出目にも使われない艇は候補から外す(デッド候補の除去、§1.4)'));
+  g.appendChild(el('text', {x: 24, y: 568, class: 'small muted'}, '数直線上の位置は説明用の例。選定値 = (1 − 予測ST) + 強さpt / 50 − 1.6、窓は全着順共通で ±0.10(強さpt 換算 ±5.0 pt)'));
+</script>
+</body></html>

@@ -1,0 +1,74 @@
+<!doctype html>
+<!-- size: 900x600 -->
+<html lang="ja"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css"></head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+  <defs>
+    <marker id="arrr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E5002D"/></marker>
+  </defs>
+  <g id="main"></g>
+</svg>
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const g = document.getElementById('main');
+  const el = (n, a, txt) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; };
+  // 列: x 開始位置と幅
+  const cols = [
+    {key: 'name',  x: 20,  w: 90,  title: '成分'},
+    {key: 'mat',   x: 110, w: 210, title: '生値の材料'},
+    {key: 'msw',   x: 320, w: 140, title: 'μ/σ/w の出どころ'},
+    {key: 'stage', x: 460, w: 240, title: 'fun-site で再現できる段階'},
+    {key: 'check', x: 700, w: 180, title: '照合結果'},
+  ];
+  const rows = [
+    {name: '枠番pt',   mat: ['win_rate.csv'], msw: 'weights', stages: ['fs','fs','fs','fs'], check: ['1,782 エントリ一致']},
+    {name: '選手pt',   mat: ['recent_national', '+ recent_local'], msw: '(未取り込み)', stages: ['fs','fs','no','no'], check: ['素点は照合対象外']},
+    {name: '展示pt',   mat: ['previews', '(tkz, original_exhibition)'], msw: 'weights', stages: ['fs','fs','fs','fs'], check: ['49,092 艇一致']},
+    {name: '気象pt',   mat: ['previews/sui', '+ sui_params'], msw: 'weights', stages: ['fs','fs','fs','fs'], check: ['7,996 エントリ中', '1 件不一致']},
+    {name: 'モーターpt', mat: ['estimate/motor_pt/', '{runs, motors, baseline}'], msw: 'weights', stages: ['up','up','fs','fs'], check: ['933 セル一致', '(境界 2 件)'], upstream: true},
+  ];
+  const headY = 70, rowH = 74, y0 = 100;
+  g.appendChild(el('text', {x: 20, y: 30, class: 'title'}, '5 成分の再現可否(2026-08-23 時点)'));
+  // ヘッダ
+  g.appendChild(el('rect', {x: 20, y: headY - 24, width: 860, height: 32, rx: 4, fill: '#2B4C9B'}));
+  cols.forEach(c => g.appendChild(el('text', {x: c.x + 10, y: headY - 3, class: 'h', fill: '#fff', style: 'font-size:13px'}, c.title)));
+  // 段階の凡例
+  const stageNames = ['生値', '素点', '偏差値', '寄与'];
+  const stagePill = (x, y, label, kind) => {
+    const fill = kind === 'fs' ? '#2B4C9B' : (kind === 'up' ? '#fff' : '#F3F4F6');
+    const stroke = kind === 'up' ? '#E5002D' : (kind === 'fs' ? '#2B4C9B' : '#D1D5DB');
+    g.appendChild(el('rect', {x, y: y - 11, width: 50, height: 22, rx: 11, fill, stroke, 'stroke-width': kind === 'up' ? 2 : 1}));
+    g.appendChild(el('text', {x: x + 25, y: y + 4, 'text-anchor': 'middle', class: 'small', fill: kind === 'fs' ? '#fff' : (kind === 'up' ? '#E5002D' : '#9CA3AF')}, label));
+  };
+  rows.forEach((r, i) => {
+    const y = y0 + i * rowH;
+    g.appendChild(el('rect', {x: 20, y: y - 10, width: 860, height: rowH - 4, rx: 4, fill: i % 2 ? '#F9FAFB' : '#fff', stroke: '#E5E7EB'}));
+    const cy = y + (rowH - 4) / 2 - 10;
+    g.appendChild(el('text', {x: cols[0].x + 10, y: cy + 5, class: 'h'}, r.name));
+    r.mat.forEach((t, j) => g.appendChild(el('text', {x: cols[1].x + 10, y: cy + 5 + (j - (r.mat.length - 1) / 2) * 18, class: 'mono', fill: r.upstream ? '#E5002D' : '#111827'}, t)));
+    g.appendChild(el('text', {x: cols[2].x + 10, y: cy + 5, class: r.msw.startsWith('(') ? 'small muted' : 'mono'}, r.msw));
+    r.stages.forEach((k, j) => {
+      stagePill(cols[3].x + 10 + j * 57, cy, stageNames[j], k);
+      if (j < 3) g.appendChild(el('text', {x: cols[3].x + 10 + j * 57 + 53, y: cy + 4, class: 'small muted'}, '›'));
+    });
+    r.check.forEach((t, j) => g.appendChild(el('text', {x: cols[4].x + 10, y: cy + 5 + (j - (r.check.length - 1) / 2) * 18, class: 'small'}, t)));
+  });
+  // モーター行の強調: 上流が配る
+  const my = y0 + 4 * rowH + (rowH - 4) / 2 - 10;
+  g.appendChild(el('rect', {x: cols[1].x + 4, y: my - 26, width: cols[1].w - 8, height: 52, rx: 6, fill: 'none', stroke: '#E5002D', 'stroke-width': 2}));
+  g.appendChild(el('path', {d: `M 230 ${my + 60} L 230 ${my + 28}`, class: 'line-red', 'marker-end': 'url(#arrr)'}));
+  g.appendChild(el('rect', {x: 110, y: my + 60, width: 240, height: 26, rx: 13, fill: '#E5002D'}));
+  g.appendChild(el('text', {x: 230, y: my + 78, 'text-anchor': 'middle', class: 'small h', fill: '#fff'}, '上流(BoatraceCSV)が明細を配る'));
+  g.appendChild(el('path', {d: `M 350 ${my + 73} L 470 ${my + 73} L 470 ${my + 20}`, class: 'line-red', 'marker-end': 'url(#arrr)'}));
+  g.appendChild(el('text', {x: 480, y: my + 66, class: 'small red'}, '素点は上流の明細をそのまま表示'));
+  g.appendChild(el('text', {x: 480, y: my + 84, class: 'small red'}, '(全 24 場横断のベースラインが要るため fun-site では計算できない)'));
+
+  // 凡例
+  const ly = 560;
+  g.appendChild(el('text', {x: 20, y: ly + 4, class: 'small h'}, '段階の凡例:'));
+  stagePill(110, ly, '生値', 'fs'); g.appendChild(el('text', {x: 168, y: ly + 4, class: 'small'}, 'fun-site が計算'));
+  stagePill(290, ly, '素点', 'up'); g.appendChild(el('text', {x: 348, y: ly + 4, class: 'small'}, '上流が配った値を表示'));
+  stagePill(500, ly, '偏差値', 'no'); g.appendChild(el('text', {x: 558, y: ly + 4, class: 'small'}, '未取り込み(index CSV の値を表示)'));
+  g.appendChild(el('text', {x: 20, y: ly + 30, class: 'small muted'}, '照合は index CSV の値と小数第 2 位までの一致。母数の単位(エントリ / 艇 / セル)は成分ごとに検証した単位'));
+</script>
+</body></html>

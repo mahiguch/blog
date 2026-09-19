@@ -1,0 +1,18 @@
+/* 図版共通スタイル(images-src/*.html から参照) */
+html, body { margin: 0; padding: 0; background: #fff; }
+svg { font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif; font-size: 14px; fill: #111827; }
+.title { font-size: 17px; font-weight: 600; }
+.h { font-weight: 600; }
+.small { font-size: 12px; }
+.muted { fill: #6B7280; }
+.navy { fill: #2B4C9B; }
+.red { fill: #E5002D; }
+.white { fill: #fff; }
+.box { fill: #EEF2FF; stroke: #2B4C9B; stroke-width: 1.5; }
+.box-gray { fill: #F3F4F6; stroke: #9CA3AF; stroke-width: 1.5; }
+.box-white { fill: #fff; stroke: #2B4C9B; stroke-width: 1.5; }
+.line { stroke: #2B4C9B; stroke-width: 2; fill: none; }
+.line-gray { stroke: #6B7280; stroke-width: 1.5; fill: none; }
+.line-red { stroke: #E5002D; stroke-width: 2; fill: none; }
+.dash { stroke-dasharray: 6 4; }
+.mono { font-family: "SF Mono", Menlo, "Hiragino Sans", monospace; font-size: 13px; }
