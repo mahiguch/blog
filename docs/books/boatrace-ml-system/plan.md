@@ -23,7 +23,7 @@ Zenn book `books/boatrace-ml-system/` の執筆計画。章の骨格は各章フ
 | fun-site | https://github.com/BoatraceCSV/fun-site | 予想ページの生成と配信(TypeScript / Astro) |
 
 リンクは `blob/main/<path>` 形式。ローカルの `/Users/mahiguch/dev/{boatracecsv.github.io,fun-site}` を参照して書く。
-fun-site の README は License が Private なので、**公開範囲を執筆前に確認する**(非公開ならコードは書籍内で完結させる)。
+fun-site のライセンスは MIT(2026-09-19 に Private から変更)。両リポジトリとも GitHub リンクで実装を参照する。
 
 ## 章ごとの対応表
 
@@ -65,3 +65,13 @@ fun-site の README は License が Private なので、**公開範囲を執筆�
 ## 執筆メモの扱い
 
 各章ファイル末尾の `## 執筆メモ` セクションは、本文を書き終えたら削除する。
+
+## 執筆手順(章ごと)
+
+1. 骨格ファイルの節構成に従い、本文を日本語で書く(目安 8,000〜15,000 字)。
+2. 数値は元資料から引き、時点(2026-08)と母数 n を添える。元資料にない数値は書かない。
+3. 簡略版コードは実装から本質だけを抜き、Python は実際に動かして確認する。
+4. 「元資料」は GitHub の `blob/main/<path>` リンクにし、パスがローカルに存在することを確認する。
+5. 「演習」は公開 CSV だけで解けるものにする。
+6. 末尾の `## 執筆メモ` を削除する。
+7. 章ごとにコミットする。
