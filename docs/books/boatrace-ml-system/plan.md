@@ -75,7 +75,7 @@ fun-site のライセンスは MIT(2026-09-19 に Private から変更)。両リ
 5. 「演習」は公開 CSV だけで解けるものにする。
 6. 末尾の `## 執筆メモ` を削除する。
 7. 章ごとにコミットする。
-- 表示名: registry.py は v1_basic=A君予想、fun-site predictors.ts は 本命予想。最終整合パスで統一を検討(第 10 章は registry 名を採用)
+- 表示名: registry.py は v1_basic=A君予想、fun-site predictors.ts は 本命予想。本文は fun-site の表示名「本命予想」で統一済み(第 10 章の系譜表に registry 名を併記)
 
 ## 進捗(2026-09-19)
 
