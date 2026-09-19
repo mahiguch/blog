@@ -333,7 +333,7 @@ control と同じレースをペアにし、ペア bootstrap 20,000 反復の 95
 
 | ID | 表示名 | control との差分(仮説) | 投入 | 退役 | n | 差 | p |
 | --- | --- | --- | --- | --- | ---: | ---: | ---: |
-| `v1_basic` | A君予想 | control。waku, racer, motor, exhibit, weather の 5 成分 | 05-01 | active | — | — | — |
+| `v1_basic` | 本命予想(registry.py では「A君予想」) | control。waku, racer, motor, exhibit, weather の 5 成分 | 05-01 | active | — | — | — |
 | `v2_tenkai` | B君予想 | `motor` → `motor2rate`(公式モーター 2 連対率) | 06-13 | 07-19 | — | 有意差なし | — |
 | `v3_tenkai` | 展開予想 | `tenkai`(進入変更の有利度)を 6 成分目に追加 | 06-20 | 07-19 | — | 有意差なし | — |
 | `v4_motor` | モーター予想 | `motor` → `motor4`(エキスパート評価でチューニング) | 07-20 | 08-10 | 3,035 | +0.30pt | 0.884 |
