@@ -120,4 +120,4 @@ fun-site のライセンスは MIT(2026-09-19 に Private から変更)。両リ
   - 第 20 章: /images/boatrace-ml-system/kimarite-pipeline.png
   - 第 21 章: /images/boatrace-ml-system/ana-prediction-pipeline.png
 
-- 公開前チェック: `published: true` に変更、zenn preview で全章表示確認。
+- 2026-09-20: レビュー完了、`published: true` に変更。
