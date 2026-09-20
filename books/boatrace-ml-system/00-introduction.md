@@ -43,12 +43,7 @@ boatrace-fun.net は、ボートレース(競艇)の当日全レースについ�
 システムは 3 つの構成要素からなります。順に、データを収集して予測を計算する層、予測を読んでページを生成する層、そしてその 2 つを定期実行して結ぶ GCP の基盤です。
 
 ![全体アーキテクチャ](/images/boatrace-ml-system/overview.png)
-<!-- 図: 左に boatracecsv(Python)、右に fun-site(TypeScript / Astro)、下に利用者を置く 1 枚の図。
-左: 公式サイト → Cloud Scheduler(3 本: preview-realtime 2 分毎 / daily-sync 07:30 / monthly-weights 毎月 1 日 06:00)→ Cloud Run Jobs(1 イメージ 3 ジョブ)→ 「git push(GitHub Pages で CSV 配信)」と「GCS ミラー + Pub/Sub publish」の 2 出口。
-右: Pub/Sub → Eventarc → Workflows → Cloud Run Job(fun-site-batch: event-parser → build-state → fetcher → prediction-builder → Astro build → GCS deploy)→ GCS → Cloud CDN → HTTPS LB → 利用者。
-左右の境界に太い縦線を引き「CSV だけが境界を越える。fun-site 側に学習・推論はない」と注記する。
-monthly-weights から出る weights CSV は左側の内部(build_index の入力)に留まることを矢印で示す。
-fun-site docs/architecture.md の「システム構成図」と boatracecsv docs/infrastructure.md の「アーキテクチャ」を統合して描き直す。 -->
+<!-- 図: 左に boatracecsv(Python)、右に fun-site(TypeScript / Astro)、下に利用者を置く 1 枚の図。左: 公式サイト → Cloud Scheduler(3 本: preview-realtime 2 分毎 / daily-sync 07:30 / monthly-weights 毎月 1 日 06:00)→ Cloud Run Jobs(1 イメージ 3 ジョブ)→ 「git push(GitHub Pages で CSV 配信)」と「GCS ミラー + Pub/Sub publish」の 2 出口。右: Pub/Sub → Eventarc → Workflows → Cloud Run Job(fun-site-batch: event-parser → build-state → fetcher → prediction-builder → Astro build → GCS deploy)→ GCS → Cloud CDN → HTTPS LB → 利用者。左右の境界に太い縦線を引き「CSV だけが境界を越える。fun-site 側に学習・推論はない」と注記する。monthly-weights から出る weights CSV は左側の内部(build_index の入力)に留まることを矢印で示す。fun-site docs/architecture.md の「システム構成図」と boatracecsv docs/infrastructure.md の「アーキテクチャ」を統合して描き直す。 -->
 
 ### boatracecsv(Python)
 
