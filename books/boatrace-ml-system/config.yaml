@@ -9,7 +9,7 @@ summary: |
   機械学習をシステムとして運用するための一連の物語として読めます。
   Python と TypeScript / Astro の基礎知識を前提とします。
 topics: ["python", "機械学習", "typescript", "astro", "googlecloud"]
-published: false
+published: true
 price: 0
 toc_depth: 2
 chapters:
