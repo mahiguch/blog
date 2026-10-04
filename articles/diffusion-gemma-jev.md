@@ -3,7 +3,7 @@ title: "DiffusionGemma を Jev のような判定モデルとして Cloud Run GP
 emoji: "🚨"
 type: "tech"
 topics: ["vllm", "cloudrun", "gemma", "llm", "googlecloud"]
-published: false
+published: true
 ---
 
 ## はじめに
